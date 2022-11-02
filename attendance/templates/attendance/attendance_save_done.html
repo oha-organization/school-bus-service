@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Attendance Successful Saved</title>
+</head>
+<body>
+<h1>{{ signature }}</h1>
+
+<script>
+    alert("Bus: {{ signature.bus }}, {{ signature.check_date }} - {{ signature.direction }} successful recorded.");
+    location.replace("{% url 'attendance:signature-detail' signature.id %}");
+</script>
+
+</body>
+</html>

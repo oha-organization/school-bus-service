@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}School List{% endblock title %}
+
+{% block content %}
+{% if user.is_authenticated %}
+  Hi {{ user.username }}! You are {{ user.role }} at {{ user.school }}. -> <a href="{% url 'logout' %}">Log Out</a>
+  <p></p>
+{% else %}
+  <p>You are not logged in</p>
+  <a href="{% url 'login' %}">Log In</a> |
+  <a href="{% url 'signup' %}">Sign Up</a>
+{% endif %}
+<h1>School List</h1>
+<ul>
+{% for school in school_list %}
+    <li><a href="{% url 'attendance:attendance-choose-by-user'%}">{{ school }}</a></li>
+{% empty %}
+    <li>Sorry, no schools in this list.</li>
+{% endfor %}
+</ul>
+{% endblock content %}

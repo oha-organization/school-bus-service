@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Signature Detail{% endblock title %}
+
+{% block content %}
+{% if user.is_authenticated %}
+  Hi {{ user.username }}! You are at {{ user.role }} role. -> <a href="{% url 'logout' %}">Log Out</a>
+  <p></p>
+{% else %}
+  <p>You are not logged in</p>
+  <a href="{% url 'login' %}">Log In</a> |
+  <a href="{% url 'signup' %}">Sign Up</a>
+{% endif %}
+
+
+<h1>Bus: {{ signature.bus }}, {{ signature.check_date }} - {{ signature.direction }}</h1>
+Total students number: {{ signature.number_of_total_student }}<br>
+Absents students number: {{ signature.number_of_absent_student }}
+
+<h2>Attendance:</h2>
+<ul>
+    {% for attendance in signature.attendance_set.all %}
+        <li>{{ attendance.student }}</li>
+    {% empty %}
+        <li>All students are on the bus.</li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'attendance:attendance-choose' request.session.school_id %}">Get new attendance</a>
+
+{% endblock content %}

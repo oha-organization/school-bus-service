@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance get{% endblock title %}
+
+{% block content %}
+{% if user.is_authenticated %}
+  Hi {{ user.username }}! You are at {{ user.role }} role. -> <a href="{% url 'logout' %}">Log Out</a>
+  <p></p>
+{% else %}
+  <p>You are not logged in</p>
+  <a href="{% url 'login' %}">Log In</a> |
+  <a href="{% url 'signup' %}">Sign Up</a>
+{% endif %}
+
+<h1>Bus: {{ signature.bus }}, {{ signature.check_date }} - {{ signature.direction }}</h1>
+<p>Signature: {{ signature }}</p>
+
+<form method="post" action="{% url 'attendance:attendance-save' %}">{% csrf_token %}
+    Student Name | Absent <br>
+    {% for student in student_list %}
+        <label for="student_absent_list{{ forloop.counter }}"> {{ student.first_name }}</label>
+        <input type="checkbox" id="student_absent_list{{ forloop.counter }}" name="student_absent_list"
+               value="{{ student.id }}" {% if student in student_already_absent_list %} checked{% endif %}>
+        <br>
+    {% empty %}
+        <li>Sorry, no students in this list.</li>
+    {% endfor %}
+    <input type="submit" value="Save">
+</form>
+{% endblock content %}

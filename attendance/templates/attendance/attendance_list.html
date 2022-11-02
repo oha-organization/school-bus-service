@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance List{% endblock title %}
+
+{% block content %}
+{% if user.is_authenticated %}
+  Hi {{ user.username }}! You are at {{ user.role }} role. -> <a href="{% url 'logout' %}">Log Out</a>
+  <p></p>
+{% else %}
+  <p>You are not logged in</p>
+  <a href="{% url 'login' %}">Log In</a> |
+  <a href="{% url 'signup' %}">Sign Up</a>
+{% endif %}
+
+<h1>Attendance List</h1>
+<p>Absent Student List</p>
+{% if object_list %}
+    <ul>
+    <li>id - check_date - check_direction - student - person</li>
+    {% for attendance in object_list %}
+        <li>{{ attendance.id }} - {{ attendance.check_date }} - {{ attendance.get_check_direction_display }}
+            - {{ attendance.student }} - {{ attendance.person }}
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No unattended are available.</p>
+{% endif %}
+{% endblock content %}
