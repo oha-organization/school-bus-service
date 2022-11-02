@@ -12,70 +12,16 @@ teacher = User.objects.get(id=1)
 
 
 def home(request):
-    return redirect("attendance:school-by-user")
+    return render(request, "attendance/home.html")
 
 
-def school_list(request):
-    context = {"school_list": School.objects.all()}
-    return render(request, "attendance/school_list.html", context)
-
-
-def school_by_user(request):
-    context = {"school_list": School.objects.filter(user=request.user)}
-    return render(request, "attendance/school_list.html", context)
-
-
-def attendance_choose(request, school_id):
-    # Show menu to Choose bus, date, direction
-    # School and user comes automatic with session
-    request.session["school_id"] = school_id
-    school = get_object_or_404(School.objects.all(), id=school_id)
-    bus_list = Bus.objects.filter(school=school)
-    context = {"bus_list": bus_list, "today": datetime.date.today()}
-    return render(request, "attendance/attendance_choose.html", context)
-
-
-def attendance_choose_by_user(request):
+def attendance_choose(request):
     bus_list = Bus.objects.filter(school=request.user.school)
     context = {"bus_list": bus_list, "today": datetime.date.today()}
     return render(request, "attendance/attendance_choose.html", context)
 
 
-def attendance_get(request):
-    school = get_object_or_404(School.objects.all(), id=request.session["school_id"])
-    bus = get_object_or_404(Bus.objects.all(), id=request.POST.get("bus"))
-    check_date = request.POST.get("check_date")  # Never ever do this security issue
-    direction = request.POST.get("direction")  # Never ever do this security issue
-    student_list = Student.objects.filter(bus=bus)
-
-    # Get or create new signature
-    # fields = ["school", "bus", "check_date", "direction"],
-    signature, created = Signature.objects.get_or_create(
-        school=school,
-        bus=bus,
-        direction=direction,
-        check_date=check_date,
-        defaults={"teacher": teacher},
-    )
-
-    request.session["signature_id"] = signature.id
-
-    # If signature is already exist get unattended student list
-    student_already_absent_list = []
-    if not created:
-        student_already_absent_list = Student.objects.filter(
-            attendance__signature=signature
-        )
-
-    context = {
-        "student_list": student_list,
-        "student_already_absent_list": student_already_absent_list,
-        "signature": signature,
-    }
-    return render(request, "attendance/attendance_get.html", context)
-
-
-def attendance_get_by_user(request):
+def attendance_display(request):
     bus = get_object_or_404(Bus.objects.all(), id=request.POST.get("bus"))
     check_date = request.POST.get("check_date")
     if request.POST.get("direction") in ["COMING", "LEAVING"]:
@@ -108,7 +54,7 @@ def attendance_get_by_user(request):
         "student_already_absent_list": student_already_absent_list,
         "signature": signature,
     }
-    return render(request, "attendance/attendance_get.html", context)
+    return render(request, "attendance/attendance_display.html", context)
 
 
 def attendance_save(request):

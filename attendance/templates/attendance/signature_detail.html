@@ -26,6 +26,6 @@ Absents students number: {{ signature.number_of_absent_student }}
     {% endfor %}
 </ul>
 
-<a href="{% url 'attendance:attendance-choose' request.session.school_id %}">Get new attendance</a>
+<a href="{% url 'attendance:attendance-choose' %}">Get new attendance</a>
 
 {% endblock content %}
