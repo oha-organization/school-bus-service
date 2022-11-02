@@ -7,9 +7,6 @@ from django.urls import reverse
 from accounts.models import User
 from .models import School, Bus, Student, Attendance, Signature
 
-# General data for easy implementation
-teacher = User.objects.get(id=1)
-
 
 def home(request):
     return render(request, "attendance/home.html")
