@@ -60,8 +60,12 @@ class Village(models.Model):
 
 class Bus(models.Model):
     school = models.ForeignKey(School, on_delete=models.CASCADE)
+    # https://docs.djangoproject.com/en/4.1/ref/models/fields/#django.db.models.ForeignKey.limit_choices_to
     driver = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        limit_choices_to={'role': "DRIVER"},
+        blank=True, null=True,
     )
     bus_number = models.CharField(max_length=255)
     capacity = models.IntegerField()
