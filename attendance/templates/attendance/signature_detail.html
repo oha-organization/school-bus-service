@@ -17,7 +17,7 @@
 Total students number: {{ signature.number_of_total_student }}<br>
 Absents students number: {{ signature.number_of_absent_student }}
 
-<h2>Attendance:</h2>
+<h2>Unattended:</h2>
 <ul>
     {% for attendance in signature.attendance_set.all %}
         <li>{{ attendance.student }}</li>

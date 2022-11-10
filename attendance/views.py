@@ -1,6 +1,8 @@
 import datetime
 
+import django.db.utils
 from django.core import serializers
+from django.http import Http404
 from django.shortcuts import render, get_object_or_404, get_list_or_404, redirect
 from django.urls import reverse
 
@@ -38,6 +40,7 @@ def attendance_display(request):
     )
 
     request.session["signature_id"] = signature.id
+    request.session["bus_id"] = bus.id
 
     # If signature is already exist get unattended student list
     student_already_absent_list = []
@@ -57,7 +60,13 @@ def attendance_display(request):
 def attendance_save(request):
     """Save attendance logic"""
     if request.method == "POST":
+        # For security reason check absent_students are in bus student_list
+        student_list = Student.objects.filter(bus=request.session["bus_id"])
+        student_list = [str(student.id) for student in student_list]
         student_absent_list = request.POST.getlist("student_absent_list")
+        check = all(item in student_list for item in student_absent_list)
+        if not check:
+            raise Http404("TAMPERED STUDENT DATA...")
 
         # Delete all attendance for signature
         signature = Signature.objects.get(id=request.session["signature_id"])

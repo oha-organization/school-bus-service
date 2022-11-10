@@ -9,5 +9,5 @@ urlpatterns = [
     path("display/", views.attendance_display, name="attendance-display"),
     path("save/", views.attendance_save, name="attendance-save"),
     path("save-done/", views.attendance_save_done, name="attendance-save-done"),
-    path("<int:signature_id>/", views.signature_detail, name="signature-detail"),
+    path("signature/<int:signature_id>/", views.signature_detail, name="signature-detail"),
 ]
