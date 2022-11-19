@@ -7,7 +7,7 @@ from django.shortcuts import render, get_object_or_404, get_list_or_404, redirec
 from django.urls import reverse
 
 from accounts.models import User
-from .models import School, Bus, Student, Attendance, Signature
+from .models import School, Bus, Student, Attendance, Signature, Grade
 
 
 def home(request):
@@ -23,10 +23,10 @@ def attendance_choose(request):
 def attendance_display(request):
     bus = get_object_or_404(Bus.objects.all(), id=request.POST.get("bus"))
     check_date = request.POST.get("check_date")
-    if request.POST.get("direction") in ["COMING", "LEAVING"]:
-        direction = request.POST.get("direction")
+    if request.POST["direction"] in ["COMING", "LEAVING"]:
+        direction = request.POST["direction"]
     else:
-        raise ValueError("Don't tamper post data!")
+        raise ValueError("Don't tamper post direction data!")
 
     student_list = Student.objects.filter(bus=bus)
 
@@ -64,8 +64,9 @@ def attendance_save(request):
         student_list = Student.objects.filter(bus=request.session["bus_id"])
         student_list = [str(student.id) for student in student_list]
         student_absent_list = request.POST.getlist("student_absent_list")
-        check = all(item in student_list for item in student_absent_list)
-        if not check:
+
+        check_all_absent_student_in_student_list = all(item in student_list for item in student_absent_list)
+        if not check_all_absent_student_in_student_list:
             raise Http404("TAMPERED STUDENT DATA...")
 
         # Delete all attendance for signature
@@ -96,3 +97,17 @@ def signature_detail(request, signature_id):
     signature = get_object_or_404(Signature.objects.all(), id=signature_id)
     context = {"signature": signature}
     return render(request, "attendance/signature_detail.html", context)
+
+
+def grade_add(request):
+    if request.method == "POST":
+        school = request.user.school
+        level = request.POST["level"]
+        branch = request.POST["branch"]
+
+        grade = Grade(school=school, level=level, branch=branch)
+        grade.save()
+
+        return redirect("attendance:home")
+
+    return render(request, "attendance/grade_add.html")

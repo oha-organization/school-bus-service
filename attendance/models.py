@@ -89,6 +89,12 @@ class Grade(models.Model):
 
     class Meta:
         ordering = ["level"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["level", "branch"],
+                name="unique_grade_level_and_branch",
+            )
+        ]
 
     def __str__(self):
         return f"{self.level}/{self.branch}"

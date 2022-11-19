@@ -18,8 +18,8 @@
 <form method="post" action="{% url 'attendance:attendance-save' %}">{% csrf_token %}
     Student Name | Absent <br>
     {% for student in student_list %}
-        <label for="student_absent_list{{ forloop.counter }}"> {{ student.first_name }}</label>
-        <input type="checkbox" id="student_absent_list{{ forloop.counter }}" name="student_absent_list"
+        <label for="student{{ forloop.counter }}"> {{ student.first_name }}</label>
+        <input type="checkbox" id="student{{ forloop.counter }}" name="student_absent_list"
                value="{{ student.id }}" {% if student in student_already_absent_list %} checked{% endif %}>
         <br>
     {% empty %}
