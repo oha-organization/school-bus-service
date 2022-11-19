@@ -106,7 +106,10 @@ def grade_add(request):
         branch = request.POST["branch"]
 
         grade = Grade(school=school, level=level, branch=branch)
-        grade.save()
+        try:
+            grade.save()
+        except:
+            raise Http404("The Grade has already exist.")
 
         return redirect("attendance:home")
 
