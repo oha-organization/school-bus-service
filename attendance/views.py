@@ -100,6 +100,14 @@ def signature_detail(request, signature_id):
     return render(request, "attendance/signature_detail.html", context)
 
 
+def grade_list_view(request):
+    grade_list = Grade.objects.filter(school=request.user.school)
+    context = {
+        "grade_list": grade_list,
+    }
+    return render(request, "attendance/grade_list.html", context)
+
+
 def grade_add(request):
     if request.method == "POST":
         school = request.user.school
@@ -116,14 +124,6 @@ def grade_add(request):
         return redirect("attendance:home")
 
     return render(request, "attendance/grade_add.html")
-
-
-def grade_list_view(request):
-    grade_list = Grade.objects.filter(school=request.user.school)
-    context = {
-        "grade_list": grade_list,
-    }
-    return render(request, "attendance/grade_list.html", context)
 
 
 def grade_change(request, grade_id):
@@ -150,6 +150,16 @@ def grade_change(request, grade_id):
     return render(request, "attendance/grade_change.html", context)
 
 
+def driver_list_view(request):
+    driver_list = get_user_model().objects.filter(
+        school=request.user.school, role="DRIVER"
+    )
+    context = {
+        "driver_list": driver_list,
+    }
+    return render(request, "attendance/driver_list.html", context)
+
+
 def teacher_list_view(request):
     teacher_list = get_user_model().objects.filter(
         school=request.user.school, role="TEACHER"
@@ -158,6 +168,33 @@ def teacher_list_view(request):
         "teacher_list": teacher_list,
     }
     return render(request, "attendance/teacher_list.html", context)
+
+
+def teacher_add(request):
+    if request.method == "POST":
+        school = request.user.school
+        username = request.POST["username"]
+        first_name = request.POST["first_name"]
+        last_name = request.POST["last_name"]
+        email = request.POST["email"]
+        password = request.POST["password"]
+
+        try:
+            teacher = get_user_model().objects.create_user(
+                school=school,
+                role="TEACHER",
+                username=username,
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+                password=password,
+            )
+        except Exception as e:
+            raise Http404("User creation error.")
+
+        return redirect("attendance:teacher-list")
+
+    return render(request, "attendance/teacher_add.html")
 
 
 def teacher_change(request, teacher_id):

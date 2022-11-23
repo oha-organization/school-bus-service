@@ -20,6 +20,9 @@
     Email:<br>
     <input name="email" value="{{ teacher.email }}">
     <br><br>
+    Role:<br>
+    <input value="{{ teacher.role }}" disabled>
+    <br><br>
     <p><a href="{% url 'attendance:teacher-change-password' teacher.id %}">Password Change</a></p>
     <input type="submit" value="SAVE">
 </form>
