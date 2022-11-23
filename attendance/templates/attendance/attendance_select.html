@@ -12,7 +12,7 @@
   <a href="{% url 'signup' %}">Sign Up</a>
 {% endif %}
 <h1>Attendance Choose</h1>
-<form method="post" action="{% url 'attendance:attendance-display' %}">{% csrf_token %}
+<form method="post" action="{% url 'attendance:attendance-get-or-create' %}">{% csrf_token %}
     Bus:
     <select name="bus" required id="bus">
         <option value selected>-----</option>

@@ -14,13 +14,13 @@ def home(request):
     return render(request, "attendance/home.html")
 
 
-def attendance_choose(request):
+def attendance_select(request):
     bus_list = Bus.objects.filter(school=request.user.school)
     context = {"bus_list": bus_list, "today": datetime.date.today()}
-    return render(request, "attendance/attendance_choose.html", context)
+    return render(request, "attendance/attendance_select.html", context)
 
 
-def attendance_display(request):
+def attendance_get_or_create(request):
     bus = get_object_or_404(Bus.objects.all(), id=request.POST.get("bus"))
     check_date = request.POST.get("check_date")
     if request.POST["direction"] in ["COMING", "LEAVING"]:
@@ -54,7 +54,7 @@ def attendance_display(request):
         "student_already_absent_list": student_already_absent_list,
         "signature": signature,
     }
-    return render(request, "attendance/attendance_display.html", context)
+    return render(request, "attendance/attendance_get_or_create.html", context)
 
 
 def attendance_save(request):
@@ -87,8 +87,9 @@ def attendance_save(request):
 
 def attendance_save_done(request):
     signature = get_object_or_404(
-        Signature.objects.all(), id=request.session["signature_id"]
+        Signature.objects.all(), id=request.session.get("signature_id")
     )
+    del request.session["signature_id"]
     context = {"signature": signature}
     return render(request, "attendance/attendance_save_done.html", context)
 
@@ -108,7 +109,8 @@ def grade_add(request):
         grade = Grade(school=school, level=level, branch=branch)
         try:
             grade.save()
-        except:
+        except Exception as e:
+            print("Error is: ", e)
             raise Http404("The Grade has already exist.")
 
         return redirect("attendance:home")

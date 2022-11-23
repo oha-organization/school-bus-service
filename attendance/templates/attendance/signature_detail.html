@@ -17,7 +17,7 @@
 Total students number: {{ signature.number_of_total_student }}<br>
 Absents students number: {{ signature.number_of_absent_student }}
 
-<h2>Unattended:</h2>
+<h2>Unattended List:</h2>
 <ul>
     {% for attendance in signature.attendance_set.all %}
         <li>{{ attendance.student }}</li>
@@ -26,6 +26,6 @@ Absents students number: {{ signature.number_of_absent_student }}
     {% endfor %}
 </ul>
 
-<a href="{% url 'attendance:attendance-choose' %}">Get new attendance</a>
+<a href="{% url 'attendance:attendance-select' %}">Get new attendance</a>
 
 {% endblock content %}
