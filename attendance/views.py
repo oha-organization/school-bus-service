@@ -79,6 +79,7 @@ def attendance_save(request):
 
         # Touch Signature Model for update to signed_at field
         signature.is_signed = True
+        signature.teacher = request.user
         signature.save()
 
         # return redirect("attendance:signature-detail", signature.id)
@@ -98,6 +99,14 @@ def signature_detail(request, signature_id):
     signature = get_object_or_404(Signature.objects.all(), id=signature_id)
     context = {"signature": signature}
     return render(request, "attendance/signature_detail.html", context)
+
+
+def signature_list_view(request):
+    signature_list = Signature.objects.filter(school=request.user.school)
+    context = {
+        "signature_list": signature_list,
+    }
+    return render(request, "attendance/signature_list.html", context)
 
 
 def grade_list_view(request):

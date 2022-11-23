@@ -143,7 +143,7 @@ class Signature(models.Model):
         return (
             f"{self.school.name} | {self.bus.bus_number} | {self.check_date} | {self.direction} | "
             f"Absent:{self.number_of_absent_student} | Total:{self.number_of_total_student} | {self.teacher.username} | "
-            f"{self.created_at} | {self.signed_at} | {self.is_signed}"
+            f"{self.is_signed}"
         )
 
     # def get_absolute_url(self):
