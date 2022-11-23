@@ -64,8 +64,9 @@ class Bus(models.Model):
     driver = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
-        limit_choices_to={'role': "DRIVER"},
-        blank=True, null=True,
+        limit_choices_to={"role": "DRIVER"},
+        blank=True,
+        null=True,
     )
     bus_number = models.CharField(max_length=255)
     capacity = models.IntegerField()

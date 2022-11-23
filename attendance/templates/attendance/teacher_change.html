@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Change{% endblock title %}
+
+{% block content %}
+
+<h1>Teacher Change</h1>
+
+<form action="" method="post">
+    {% csrf_token %}
+    Username:<br>
+    <input name="username" value="{{ teacher.username }}">
+    <br><br>
+    First name:<br>
+    <input name="first_name" value="{{ teacher.first_name }}">
+    <br><br>
+    Last name:<br>
+    <input name="last_name" value="{{ teacher.last_name }}">
+    <br><br>
+    Email:<br>
+    <input name="email" value="{{ teacher.email }}">
+    <br><br>
+    <p><a href="{% url 'attendance:teacher-change-password' teacher.id %}">Password Change</a></p>
+    <input type="submit" value="SAVE">
+</form>
+
+{% endblock content %}

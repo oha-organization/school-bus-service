@@ -1,12 +1,10 @@
 import datetime
 
-import django.db.utils
-from django.core import serializers
 from django.http import Http404
-from django.shortcuts import render, get_object_or_404, get_list_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+from django.contrib.auth import get_user_model
 
-from accounts.models import User
 from .models import School, Bus, Student, Attendance, Signature, Grade
 
 
@@ -65,7 +63,9 @@ def attendance_save(request):
         student_list = [str(student.id) for student in student_list]
         student_absent_list = request.POST.getlist("student_absent_list")
 
-        check_all_absent_student_in_student_list = all(item in student_list for item in student_absent_list)
+        check_all_absent_student_in_student_list = all(
+            item in student_list for item in student_absent_list
+        )
         if not check_all_absent_student_in_student_list:
             raise Http404("TAMPERED STUDENT DATA...")
 
@@ -120,12 +120,16 @@ def grade_add(request):
 
 def grade_list_view(request):
     grade_list = Grade.objects.filter(school=request.user.school)
-    context = {"grade_list": grade_list,}
+    context = {
+        "grade_list": grade_list,
+    }
     return render(request, "attendance/grade_list.html", context)
 
 
 def grade_change(request, grade_id):
-    grade = get_object_or_404(Grade.objects.filter(school=request.user.school), id=grade_id)
+    grade = get_object_or_404(
+        Grade.objects.filter(school=request.user.school), id=grade_id
+    )
 
     if request.method == "POST":
         level = request.POST["level"]
@@ -144,3 +148,70 @@ def grade_change(request, grade_id):
 
     context = {"grade": grade}
     return render(request, "attendance/grade_change.html", context)
+
+
+def teacher_list_view(request):
+    teacher_list = get_user_model().objects.filter(
+        school=request.user.school, role="TEACHER"
+    )
+    context = {
+        "teacher_list": teacher_list,
+    }
+    return render(request, "attendance/teacher_list.html", context)
+
+
+def teacher_change(request, teacher_id):
+    teacher = get_object_or_404(
+        get_user_model().objects.filter(school=request.user.school), id=teacher_id
+    )
+
+    if request.method == "POST":
+        username = request.POST["username"]
+        first_name = request.POST["first_name"]
+        last_name = request.POST["last_name"]
+        email = request.POST["email"]
+
+        teacher.username = username
+        teacher.first_name = first_name
+        teacher.last_name = last_name
+        teacher.email = email
+
+        try:
+            teacher.save()
+        except Exception as e:
+            raise Http404("Teacher update error.")
+
+        return redirect("attendance:teacher-list")
+
+    context = {
+        "teacher": teacher,
+    }
+    return render(request, "attendance/teacher_change.html", context)
+
+
+def teacher_change_password(request, teacher_id):
+    teacher = get_object_or_404(
+        get_user_model().objects.filter(school=request.user.school), id=teacher_id
+    )
+    context = {
+        "teacher": teacher,
+    }
+
+    if request.method == "POST":
+        password1 = request.POST["password1"]
+        password2 = request.POST["password2"]
+
+        if password1 == password2:
+            teacher.set_password(password1)
+            try:
+                teacher.save()
+            except Exception as e:
+                raise Http404("Teacher password update error.")
+
+            return redirect("attendance:teacher-list")
+
+        context['error_message'] = 'Password does not match!'
+
+    return render(request, "attendance/teacher_change_password.html", context)
+
+
