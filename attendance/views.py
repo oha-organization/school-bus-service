@@ -118,5 +118,29 @@ def grade_add(request):
     return render(request, "attendance/grade_add.html")
 
 
-def grade_list(request):
-    pass
+def grade_list_view(request):
+    grade_list = Grade.objects.filter(school=request.user.school)
+    context = {"grade_list": grade_list,}
+    return render(request, "attendance/grade_list.html", context)
+
+
+def grade_change(request, grade_id):
+    grade = get_object_or_404(Grade.objects.filter(school=request.user.school), id=grade_id)
+
+    if request.method == "POST":
+        level = request.POST["level"]
+        branch = request.POST["branch"]
+
+        # If nothing change doesn't touch database
+        if not (grade.level == level and grade.branch == branch):
+            grade.level = level
+            grade.branch = branch
+            try:
+                grade.save()
+            except Exception as e:
+                raise Http404("Update error.")
+
+        return redirect("attendance:grade-list")
+
+    context = {"grade": grade}
+    return render(request, "attendance/grade_change.html", context)

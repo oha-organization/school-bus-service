@@ -7,8 +7,9 @@
 <body>
   <header>
     {% block header %}
+    <a href="{% url 'attendance:home' %}">Home</a> |
     {% if user.is_authenticated %}
-      Hi {{ user.username }}! You are at {{ user.role }} role. -> <a href="{% url 'logout' %}">Log Out</a>
+      Hi {{ user.username }}! You are at {{ user.role }} role. | <a href="{% url 'logout' %}">Log Out</a>
       <p></p>
     {% else %}
       <p>You are not logged in</p>
