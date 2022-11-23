@@ -3,14 +3,6 @@
 {% block title %}Attendance Home{% endblock title %}
 
 {% block content %}
-{% if user.is_authenticated %}
-  Hi {{ user.username }}! You are {{ user.role }} at {{ user.school }}. -> <a href="{% url 'logout' %}">Log Out</a>
-  <p></p>
-{% else %}
-  <p>You are not logged in</p>
-  <a href="{% url 'login' %}">Log In</a> |
-  <a href="{% url 'signup' %}">Sign Up</a>
-{% endif %}
 <h1>Attendance Home</h1>
 <p>username: {{ user.username }}</p>
 <p>role: {{ user.role }}</p>
@@ -18,5 +10,6 @@
 
 <p>Start to get attendance -> <a href="{% url 'attendance:attendance-select'%}">Select Attendance</a></p>
 <p>Grade Add -> <a href="{% url 'attendance:grade-add'%}">Grade add</a></p>
+<p>Grade List -> <a href="{% url 'attendance:grade-list'%}">Grade list</a></p>
 
 {% endblock content %}

@@ -116,3 +116,7 @@ def grade_add(request):
         return redirect("attendance:home")
 
     return render(request, "attendance/grade_add.html")
+
+
+def grade_list(request):
+    pass

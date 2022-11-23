@@ -3,14 +3,6 @@
 {% block title %}Attendance Choose{% endblock title %}
 
 {% block content %}
-{% if user.is_authenticated %}
-  Hi {{ user.username }}! You are at {{ user.role }} role. -> <a href="{% url 'logout' %}">Log Out</a>
-  <p></p>
-{% else %}
-  <p>You are not logged in</p>
-  <a href="{% url 'login' %}">Log In</a> |
-  <a href="{% url 'signup' %}">Sign Up</a>
-{% endif %}
 <h1>Attendance Choose</h1>
 <form method="post" action="{% url 'attendance:attendance-get-or-create' %}">{% csrf_token %}
     Bus:
