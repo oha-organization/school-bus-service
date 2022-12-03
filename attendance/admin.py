@@ -9,7 +9,8 @@ from .models import (
     Attendance,
     City,
     District,
-    Signature,
+    AbsentStudent,
+    BusMember,
 )
 
 admin.site.register(School)
@@ -20,4 +21,5 @@ admin.site.register(Student)
 admin.site.register(Attendance)
 admin.site.register(City)
 admin.site.register(District)
-admin.site.register(Signature)
+admin.site.register(AbsentStudent)
+admin.site.register(BusMember)

@@ -10,11 +10,11 @@ urlpatterns = [
     path("save/", views.attendance_save, name="attendance-save"),
     path("save-done/", views.attendance_save_done, name="attendance-save-done"),
     path(
-        "signature/<int:signature_id>/", views.signature_detail, name="signature-detail"
+        "attendance/<int:attendance_id>/",
+        views.attendance_detail,
+        name="attendance-detail",
     ),
-    path(
-        "signature/", views.signature_list_view, name="signature-list"
-    ),
+    path("attendance/", views.attendance_list_view, name="attendance-list"),
     path("grade/", views.grade_list_view, name="grade-list"),
     path("grade/add/", views.grade_add, name="grade-add"),
     path("grade/<int:grade_id>/change/", views.grade_change, name="grade-change"),
@@ -25,6 +25,8 @@ urlpatterns = [
         "teacher/<int:teacher_id>/change/", views.teacher_change, name="teacher-change"
     ),
     path(
-        "teacher/<int:teacher_id>/password/", views.teacher_change_password, name="teacher-change-password"
+        "teacher/<int:teacher_id>/password/",
+        views.teacher_change_password,
+        name="teacher-change-password",
     ),
 ]

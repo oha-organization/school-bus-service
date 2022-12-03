@@ -5,7 +5,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 
-from .models import School, Bus, Student, Attendance, Signature, Grade
+from .models import School, Bus, Student, AbsentStudent, Attendance, Grade
 
 
 def home(request):
@@ -28,8 +28,8 @@ def attendance_get_or_create(request):
 
     student_list = Student.objects.filter(bus=bus)
 
-    # Get or create new signature
-    signature, created = Signature.objects.get_or_create(
+    # Get or create new attendance
+    attendance, created = Attendance.objects.get_or_create(
         school=request.user.school,
         bus=bus,
         direction=direction,
@@ -37,20 +37,20 @@ def attendance_get_or_create(request):
         defaults={"teacher": request.user},
     )
 
-    request.session["signature_id"] = signature.id
+    request.session["attendance_id"] = attendance.id
     request.session["bus_id"] = bus.id
 
-    # If signature is already exist get unattended student list
+    # If attendance is already exist get unattended student list
     student_already_absent_list = []
     if not created:
         student_already_absent_list = Student.objects.filter(
-            attendance__signature=signature
+            absent_student__attendance=attendance
         )
 
     context = {
         "student_list": student_list,
         "student_already_absent_list": student_already_absent_list,
-        "signature": signature,
+        "attendance": attendance,
     }
     return render(request, "attendance/attendance_get_or_create.html", context)
 
@@ -69,44 +69,44 @@ def attendance_save(request):
         if not check_all_absent_student_in_student_list:
             raise Http404("TAMPERED STUDENT DATA...")
 
-        # Delete all attendance for signature
-        signature = Signature.objects.get(id=request.session["signature_id"])
-        Attendance.objects.filter(signature=signature).delete()
+        # Delete all attendance for attendance
+        attendance = Attendance.objects.get(id=request.session["attendance_id"])
+        AbsentStudent.objects.filter(attendance=attendance).delete()
 
         # Add absent students to Attendance
         for student in student_absent_list:
-            Attendance.objects.create(signature=signature, student_id=student)
+            AbsentStudent.objects.create(attendance=attendance, student_id=student)
 
-        # Touch Signature Model for update to signed_at field
-        signature.is_signed = True
-        signature.teacher = request.user
-        signature.save()
+        # Touch Attendance Model for update to signed_at field
+        attendance.is_signed = True
+        attendance.teacher = request.user
+        attendance.save()
 
-        # return redirect("attendance:signature-detail", signature.id)
+        # return redirect("attendance:attendance-detail", attendance.id)
         return redirect("attendance:attendance-save-done")
 
 
 def attendance_save_done(request):
-    signature = get_object_or_404(
-        Signature.objects.all(), id=request.session.get("signature_id")
+    attendance = get_object_or_404(
+        Attendance.objects.all(), id=request.session.get("attendance_id")
     )
-    del request.session["signature_id"]
-    context = {"signature": signature}
+    del request.session["attendance_id"]
+    context = {"attendance": attendance}
     return render(request, "attendance/attendance_save_done.html", context)
 
 
-def signature_detail(request, signature_id):
-    signature = get_object_or_404(Signature.objects.all(), id=signature_id)
-    context = {"signature": signature}
-    return render(request, "attendance/signature_detail.html", context)
+def attendance_detail(request, attendance_id):
+    attendance = get_object_or_404(Attendance.objects.all(), id=attendance_id)
+    context = {"attendance": attendance}
+    return render(request, "attendance/attendance_detail.html", context)
 
 
-def signature_list_view(request):
-    signature_list = Signature.objects.filter(school=request.user.school)
+def attendance_list_view(request):
+    attendance_list = Attendance.objects.filter(school=request.user.school)
     context = {
-        "signature_list": signature_list,
+        "attendance_list": attendance_list,
     }
-    return render(request, "attendance/signature_list.html", context)
+    return render(request, "attendance/attendance_list.html", context)
 
 
 def grade_list_view(request):
@@ -256,8 +256,6 @@ def teacher_change_password(request, teacher_id):
 
             return redirect("attendance:teacher-list")
 
-        context['error_message'] = 'Password does not match!'
+        context["error_message"] = "Password does not match!"
 
     return render(request, "attendance/teacher_change_password.html", context)
-
-

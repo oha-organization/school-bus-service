@@ -116,7 +116,7 @@ class Student(models.Model):
         return f"{self.first_name}  {self.last_name}"
 
 
-class Signature(models.Model):
+class Attendance(models.Model):
     DIRECTION_CHOICES = (
         ("COMING", "COMING"),
         ("LEAVING", "LEAVING"),
@@ -135,7 +135,7 @@ class Signature(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=["school", "bus", "check_date", "direction"],
-                name="unique_signature_with_school_bus_date_and_direction",
+                name="unique_attendance_with_school_bus_date_and_direction",
             )
         ]
 
@@ -147,11 +147,11 @@ class Signature(models.Model):
         )
 
     # def get_absolute_url(self):
-    #     return reverse("signature-detail", kwargs={"pk": self.pk})
+    #     return reverse("attendance-detail", kwargs={"pk": self.pk})
 
     @property
     def number_of_absent_student(self):
-        return Attendance.objects.filter(signature=self.id).count()
+        return AbsentStudent.objects.filter(attendance=self.id).count()
         # return self.attendance_set.count()
 
     @property
@@ -159,18 +159,44 @@ class Signature(models.Model):
         return Student.objects.filter(bus=self.bus).count()
 
 
-class Attendance(models.Model):
-    signature = models.ForeignKey(Signature, on_delete=models.CASCADE)
+class AbsentStudent(models.Model):
+    attendance = models.ForeignKey(Attendance, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
 
     class Meta:
-        ordering = ["-signature"]
+        ordering = ["-attendance"]
         constraints = [
             models.UniqueConstraint(
-                fields=["student", "signature"],
-                name="unique_attendance_with_student_and_signature",
+                fields=["attendance", "student"],
+                name="unique_absent_student_with_student_and_attendance",
             )
         ]
 
     def __str__(self):
-        return f"{self.signature.id} | {self.student}"
+        return f"{self.attendance.id} | {self.student}"
+
+
+class BusMember(models.Model):
+    school = models.ForeignKey(School, on_delete=models.CASCADE, null=True, blank=True)
+    bus = models.ForeignKey(Bus, on_delete=models.CASCADE, null=True, blank=True)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    version = models.IntegerField(default=1)
+    is_active = models.BooleanField(default=True)
+
+    # Add here meta constraint for school bus student version
+    def save(self, *args, **kwargs):
+        # It's not working now :) new commit will be fixed
+        print("add new bus_member_version")
+        if BusMember.objects.filter(school=self.school, bus=self.bus, is_active=True):
+            get_version = BusMember.objects.filter(school=self.school, bus=self.bus, is_active=True)[0]
+            get_version.version += 1
+            print(f"New bus_member_version is created with  id number.")
+            print(get_version.version)
+            self.version = get_version.version
+        super().save(*args, **kwargs)  # Call the "real" save() method.
+        print(
+            "save bus member to new_bus_member_version and False old bus_member_version change all old value."
+        )
+
+    def __str__(self):
+        return f"{self.bus}, {self.student}, {self.version}, {self.is_active}"

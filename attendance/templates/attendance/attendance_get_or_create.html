@@ -3,15 +3,15 @@
 {% block title %}Attendance get{% endblock title %}
 
 {% block content %}
-<h1>Bus: {{ signature.bus }}, {{ signature.check_date }} - {{ signature.direction }}</h1>
-<p>Signature: {{ signature }}</p>
+<h1>Bus: {{ attendance.bus }}, {{ attendance.check_date }} - {{ attendance.direction }}</h1>
+<p>Signature: {{ attendance }}</p>
 
 <form method="post" action="{% url 'attendance:attendance-save' %}">{% csrf_token %}
     Student Name | Absent <br>
     {% for student in student_list %}
         <label for="student{{ forloop.counter }}"> {{ student.first_name }}</label>
         <input type="checkbox" id="student{{ forloop.counter }}" name="student_absent_list"
-               value="{{ student.id }}" {% if student in student_already_absent_list %} checked{% endif %}>
+               value="{{ student.id }}" {% if student in student_absent_alread_list %} checked{% endif %}>
         <br>
     {% empty %}
         <li>Sorry, no students in this list.</li>
