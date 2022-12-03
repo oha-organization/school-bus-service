@@ -11,7 +11,7 @@
     {% for student in student_list %}
         <label for="student{{ forloop.counter }}"> {{ student.first_name }}</label>
         <input type="checkbox" id="student{{ forloop.counter }}" name="student_absent_list"
-               value="{{ student.id }}" {% if student in student_absent_alread_list %} checked{% endif %}>
+               value="{{ student.id }}" {% if student in student_already_absent_list %} checked{% endif %}>
         <br>
     {% empty %}
         <li>Sorry, no students in this list.</li>

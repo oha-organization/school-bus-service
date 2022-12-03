@@ -8,8 +8,8 @@
 <h1>{{ signature }}</h1>
 
 <script>
-    alert("Bus: {{ signature.bus }}, {{ signature.check_date }} - {{ signature.direction }} successful recorded.");
-    location.replace("{% url 'attendance:signature-detail' signature.id %}");
+    alert("Bus: {{ attendance.bus }}, {{ attendance.check_date }} - {{ attendance.direction }} successful recorded.");
+    location.replace("{% url 'attendance:attendance-detail' attendance.id %}");
 </script>
 
 </body>

@@ -44,7 +44,7 @@ def attendance_get_or_create(request):
     student_already_absent_list = []
     if not created:
         student_already_absent_list = Student.objects.filter(
-            absent_student__attendance=attendance
+            absentstudent__attendance=attendance
         )
 
     context = {
@@ -52,6 +52,7 @@ def attendance_get_or_create(request):
         "student_already_absent_list": student_already_absent_list,
         "attendance": attendance,
     }
+    print(student_already_absent_list)
     return render(request, "attendance/attendance_get_or_create.html", context)
 
 
