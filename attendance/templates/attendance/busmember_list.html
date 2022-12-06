@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}BusMember List{% endblock title %}
+
+{% block content %}
+<h1>Active busmember_list for selected bus</h1>
+{% if busmember_list %}
+    <ul>
+    {% for busmember in busmember_list %}
+        <li>{{ busmember }} {{ busmember.student.grade }}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No busmember are available.</p>
+{% endif %}
+
+<label>Choose a grade to edit member(s):</label>
+<select name="grade_form" onchange="location = this.value;">
+    <option value="">....</option>
+    {% for grade in grade_list %}
+        <option value="{% url 'attendance:busmember-add-by-grade' bus_id grade.id %}">{{grade}}</option>
+    {% endfor %}
+</select>
+<br>
+<br>
+<a href="{% url 'attendance:busmember-change' bus_id %}">Edit BusMember</a>
+<br>
+<br>
+<a href="{% url 'attendance:bus-list' %}">Bus List</a>
+{% endblock content %}

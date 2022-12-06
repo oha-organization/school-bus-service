@@ -3,16 +3,20 @@
 {% block title %}Attendance Home{% endblock title %}
 {% block content %}
 <h1>Attendance Home</h1>
-<p>username: {{ user.username }}</p>
-<p>role: {{ user.role }}</p>
-<p>school: {{ user.school }}</p>
 
 <p>Start to get attendance -> <a href="{% url 'attendance:attendance-select'%}">Select Attendance</a></p>
 <p>Attendance List -> <a href="{% url 'attendance:attendance-list'%}">Attendance list</a></p>
+<hr>
 <p>Grade Add -> <a href="{% url 'attendance:grade-add'%}">Grade add</a></p>
 <p>Grade List -> <a href="{% url 'attendance:grade-list'%}">Grade list</a></p>
+<hr>
 <p>Teacher Add -> <a href="{% url 'attendance:teacher-add'%}">Teacher add</a></p>
 <p>Teacher List -> <a href="{% url 'attendance:teacher-list'%}">Teacher list</a></p>
+<hr>
+<p>Driver Add -> <a href="{% url 'attendance:driver-add'%}">Driver add</a></p>
 <p>Driver List -> <a href="{% url 'attendance:driver-list'%}">Driver list</a></p>
+<hr>
+<p>Bus Add -> <a href="">Bus add</a></p>
+<p>Bus List -> <a href="{% url 'attendance:bus-list'%}">Bus list</a></p>
 
 {% endblock content %}

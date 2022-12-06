@@ -184,19 +184,19 @@ class BusMember(models.Model):
     is_active = models.BooleanField(default=True)
 
     # Add here meta constraint for school bus student version
-    def save(self, *args, **kwargs):
-        # It's not working now :) new commit will be fixed
-        print("add new bus_member_version")
-        if BusMember.objects.filter(school=self.school, bus=self.bus, is_active=True):
-            get_version = BusMember.objects.filter(school=self.school, bus=self.bus, is_active=True)[0]
-            get_version.version += 1
-            print(f"New bus_member_version is created with  id number.")
-            print(get_version.version)
-            self.version = get_version.version
-        super().save(*args, **kwargs)  # Call the "real" save() method.
-        print(
-            "save bus member to new_bus_member_version and False old bus_member_version change all old value."
-        )
+    # def save(self, *args, **kwargs):
+    #     # It's not working now :) new commit will be fixed
+    #     print("add new bus_member_version")
+    #     if BusMember.objects.filter(school=self.school, bus=self.bus, is_active=True):
+    #         get_version = BusMember.objects.filter(school=self.school, bus=self.bus, is_active=True)[0]
+    #         get_version.version += 1
+    #         print(f"New bus_member_version is created with  id number.")
+    #         print(get_version.version)
+    #         self.version = get_version.version
+    #     super().save(*args, **kwargs)  # Call the "real" save() method.
+    #     print(
+    #         "save bus member to new_bus_member_version and False old bus_member_version change all old value."
+    #     )
 
     def __str__(self):
         return f"{self.bus}, {self.student}, {self.version}, {self.is_active}"

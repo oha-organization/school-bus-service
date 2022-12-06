@@ -5,7 +5,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 
-from .models import School, Bus, Student, AbsentStudent, Attendance, Grade
+from .models import School, Bus, Student, AbsentStudent, Attendance, Grade, BusMember
 
 
 def home(request):
@@ -128,8 +128,7 @@ def grade_add(request):
         try:
             grade.save()
         except Exception as e:
-            print("Error is: ", e)
-            raise Http404("The Grade has already exist.")
+            raise Http404("Error is: ", e)
 
         return redirect("attendance:home")
 
@@ -158,6 +157,26 @@ def grade_change(request, grade_id):
 
     context = {"grade": grade}
     return render(request, "attendance/grade_change.html", context)
+
+
+def driver_add(request):
+    if request.method == "POST":
+        try:
+            teacher = get_user_model().objects.create_user(
+                school=request.user.school,
+                role="DRIVER",
+                username=request.POST["username"],
+                first_name=request.POST["first_name"],
+                last_name=request.POST["last_name"],
+                email=request.POST["email"],
+                password=request.POST["password"],
+            )
+        except Exception as e:
+            raise Http404("User creation error.")
+
+        return redirect("attendance:driver-list")
+
+    return render(request, "attendance/driver_add.html")
 
 
 def driver_list_view(request):
@@ -260,3 +279,137 @@ def teacher_change_password(request, teacher_id):
         context["error_message"] = "Password does not match!"
 
     return render(request, "attendance/teacher_change_password.html", context)
+
+
+def busmember_list_view(request, bus_id):
+    busmember_list = BusMember.objects.filter(
+        school=request.user.school, bus=bus_id, is_active=True
+    )
+    grade_list = Grade.objects.filter(school=request.user.school)
+    context = {
+        "busmember_list": busmember_list,
+        "grade_list": grade_list,
+        "bus_id": bus_id,
+    }
+    return render(request, "attendance/busmember_list.html", context)
+
+
+def busmember_change(request, bus_id):
+    # Get active busmember_list for by bus_id
+    busmember_list = BusMember.objects.filter(
+        school=request.user.school, bus=bus_id, is_active=True
+    )
+
+    if request.method == "POST":
+        # Get list of multiple checkbox values
+        student_list = request.POST.getlist("student_list")
+
+        # If there is already busmember
+        if busmember_list and (len(busmember_list) != len(student_list)):
+            active_version_number = busmember_list[0].version
+            print(f"{active_version_number=}")
+
+            for student in student_list:
+                BusMember.objects.create(
+                    school=request.user.school,
+                    bus_id=bus_id,
+                    student_id=student,
+                    version=active_version_number + 1,
+                    is_active=True,
+                )
+
+            # Change is_active status to False for old busmember.
+            for busmember in busmember_list:
+                busmember.is_active = False
+                busmember.save()
+
+        return redirect("attendance:busmember-change", bus_id=bus_id)
+
+    context = {
+        "busmember_list": busmember_list,
+    }
+    return render(request, "attendance/busmember_change.html", context)
+
+
+def busmember_add(request, bus_id, grade_id):
+    busmember_list = BusMember.objects.filter(
+        school=request.user.school, bus=bus_id, is_active=True
+    )
+    student_list = Student.objects.filter(school=request.user.school, grade=grade_id)
+
+    student_at_busmember_list = Student.objects.filter(
+        school=request.user.school,
+        bus=bus_id,
+        busmember__student__grade=grade_id,
+        busmember__is_active=True,
+    )
+
+    if request.method == "POST":
+        # Get list of student who are already at member of bus.
+        student_member_list = request.POST.getlist("student_member_list")
+
+        # If there is already busmember
+        if busmember_list:
+            active_version_number = busmember_list[0].version
+
+            # Select all other grade easy way
+            busmember_list_exclude_grade = busmember_list.exclude(
+                student__grade=grade_id
+            )
+            # Add all other grade to busmember with new id
+            for busmember in busmember_list_exclude_grade:
+                busmember.pk = None
+                busmember._state.adding = True
+                busmember.version = active_version_number + 1
+                busmember.save()  # busmember.pk automatic increase 1
+                print(f"{busmember.pk=}")
+        else:
+            active_version_number = 0
+
+        # Add selected grade students to busmember
+        for student in student_member_list:
+            BusMember.objects.create(
+                school=request.user.school,
+                bus_id=bus_id,
+                student_id=student,
+                version=active_version_number + 1,
+                is_active=True,
+            )
+
+        # Change is_active status to False for old busmember.
+        for busmember in busmember_list:
+            busmember.is_active = False
+            busmember.save()
+
+        return redirect("attendance:busmember-list", bus_id=bus_id)
+
+    context = {
+        "student_list": student_list,
+        "student_at_busmember_list": student_at_busmember_list,
+    }
+    return render(request, "attendance/busmember_add.html", context)
+
+
+def student_add(request):
+    if request.method == "POST":
+        school = request.user.school
+        level = request.POST["level"]
+        branch = request.POST["branch"]
+
+        grade = Grade(school=school, level=level, branch=branch)
+        try:
+            grade.save()
+        except Exception as e:
+            raise Http404("Error is: ", e)
+
+        return redirect("attendance:home")
+
+    return render(request, "attendance/grade_add.html")
+
+
+def bus_list_view(request):
+    bus_list = Bus.objects.filter(school=request.user.school)
+    context = {
+        "bus_list": bus_list,
+    }
+    return render(request, "attendance/bus_list.html", context)
