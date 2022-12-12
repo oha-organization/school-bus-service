@@ -18,7 +18,7 @@ def attendance_select(request):
     return render(request, "attendance/attendance_select.html", context)
 
 
-def attendance_get_or_create(request):
+def attendance_display(request):
     bus = get_object_or_404(Bus.objects.all(), id=request.POST.get("bus"))
     check_date = request.POST.get("check_date")
     if request.POST["direction"] in ["COMING", "LEAVING"]:
@@ -26,7 +26,6 @@ def attendance_get_or_create(request):
     else:
         raise ValueError("Don't tamper post direction data!")
 
-    #student_list = Student.objects.filter(bus=bus)
     student_list = Student.objects.filter(
         school=request.user.school, busmember__bus=bus, busmember__is_active=True
     )
@@ -54,17 +53,13 @@ def attendance_get_or_create(request):
         student_already_absent_list = Student.objects.filter(
             absentstudent__attendance=attendance
         )
-        student_already_absent_list2 = Student.objects.filter(
-            absentstudent__attendance=attendance
-        )
 
     context = {
         "student_list": student_list,
         "student_already_absent_list": student_already_absent_list,
         "attendance": attendance,
     }
-    print(student_already_absent_list)
-    return render(request, "attendance/attendance_get_or_create.html", context)
+    return render(request, "attendance/attendance_display.html", context)
 
 
 def attendance_save(request):

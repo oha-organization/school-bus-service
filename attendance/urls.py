@@ -6,7 +6,7 @@ app_name = "attendance"
 urlpatterns = [
     path("", views.home, name="home"),
     path("select/", views.attendance_select, name="attendance-select"),
-    path("display/", views.attendance_get_or_create, name="attendance-get-or-create"),
+    path("display/", views.attendance_display, name="attendance-display"),
     path("save/", views.attendance_save, name="attendance-save"),
     path("save-done/", views.attendance_save_done, name="attendance-save-done"),
     path(
