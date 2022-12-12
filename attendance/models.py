@@ -106,7 +106,6 @@ class Student(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     grade = models.ForeignKey(Grade, on_delete=models.CASCADE)
-    bus = models.ForeignKey(Bus, on_delete=models.CASCADE)
     village = models.ForeignKey(Village, on_delete=models.CASCADE)
 
     class Meta:
@@ -123,6 +122,7 @@ class Attendance(models.Model):
     )
     school = models.ForeignKey(School, on_delete=models.CASCADE)
     bus = models.ForeignKey(Bus, on_delete=models.CASCADE)
+    version = models.IntegerField(default=0, blank=True, null=True)
     check_date = models.DateField()
     direction = models.CharField(max_length=7, choices=DIRECTION_CHOICES)
     teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -142,6 +142,7 @@ class Attendance(models.Model):
     def __str__(self):
         return (
             f"{self.school.name} | {self.bus.bus_number} | {self.check_date} | {self.direction} | "
+            f"version:{self.version} | "
             f"Absent:{self.number_of_absent_student} | Total:{self.number_of_total_student} | {self.teacher.username} | "
             f"{self.is_signed}"
         )
@@ -156,7 +157,10 @@ class Attendance(models.Model):
 
     @property
     def number_of_total_student(self):
-        return Student.objects.filter(bus=self.bus).count()
+        #return Student.objects.filter(bus=self.bus).count()
+        return BusMember.objects.filter(
+            school=self.school, bus=self.bus, version=self.version,
+        ).count()
 
 
 class AbsentStudent(models.Model):

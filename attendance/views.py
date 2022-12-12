@@ -26,7 +26,15 @@ def attendance_get_or_create(request):
     else:
         raise ValueError("Don't tamper post direction data!")
 
-    student_list = Student.objects.filter(bus=bus)
+    #student_list = Student.objects.filter(bus=bus)
+    student_list = Student.objects.filter(
+        school=request.user.school, busmember__bus=bus, busmember__is_active=True
+    )
+    version = BusMember.objects.filter(school=request.user.school, bus=bus, is_active=True)
+    if not version:
+        version = 0
+    else:
+        version = version[0].version
 
     # Get or create new attendance
     attendance, created = Attendance.objects.get_or_create(
@@ -34,7 +42,7 @@ def attendance_get_or_create(request):
         bus=bus,
         direction=direction,
         check_date=check_date,
-        defaults={"teacher": request.user},
+        defaults={"teacher": request.user, "version": version},
     )
 
     request.session["attendance_id"] = attendance.id
@@ -44,6 +52,9 @@ def attendance_get_or_create(request):
     student_already_absent_list = []
     if not created:
         student_already_absent_list = Student.objects.filter(
+            absentstudent__attendance=attendance
+        )
+        student_already_absent_list2 = Student.objects.filter(
             absentstudent__attendance=attendance
         )
 
@@ -60,7 +71,7 @@ def attendance_save(request):
     """Save attendance logic"""
     if request.method == "POST":
         # For security reason check absent_students are in bus student_list
-        student_list = Student.objects.filter(bus=request.session["bus_id"])
+        student_list = Student.objects.filter(busmember__bus=request.session["bus_id"], busmember__is_active=True)
         student_list = [str(student.id) for student in student_list]
         student_absent_list = request.POST.getlist("student_absent_list")
 
@@ -339,7 +350,7 @@ def busmember_add(request, bus_id, grade_id):
 
     student_at_busmember_list = Student.objects.filter(
         school=request.user.school,
-        bus=bus_id,
+        busmember__bus=bus_id,
         busmember__student__grade=grade_id,
         busmember__is_active=True,
     )
