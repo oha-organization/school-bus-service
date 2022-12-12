@@ -26,10 +26,23 @@ def attendance_display(request):
     else:
         raise ValueError("Don't tamper post direction data!")
 
+    # If date lte than today choose correct busmemeber list and don't let teacher to change
+    check_date = datetime.datetime.strptime(check_date, "%Y-%m-%d").date()
+    today = datetime.date.today()
+    if check_date == today:
+        print("Yes today, just get attendance")
+    elif check_date < today:
+        # there is problem to find correct busmember list by date
+        print("Check date old only admin can change")
+    else:
+        print("Check date future nobody can change")
+
     student_list = Student.objects.filter(
         school=request.user.school, busmember__bus=bus, busmember__is_active=True
     )
-    version = BusMember.objects.filter(school=request.user.school, bus=bus, is_active=True)
+    version = BusMember.objects.filter(
+        school=request.user.school, bus=bus, is_active=True
+    )
     if not version:
         version = 0
     else:
@@ -66,7 +79,9 @@ def attendance_save(request):
     """Save attendance logic"""
     if request.method == "POST":
         # For security reason check absent_students are in bus student_list
-        student_list = Student.objects.filter(busmember__bus=request.session["bus_id"], busmember__is_active=True)
+        student_list = Student.objects.filter(
+            busmember__bus=request.session["bus_id"], busmember__is_active=True
+        )
         student_list = [str(student.id) for student in student_list]
         student_absent_list = request.POST.getlist("student_absent_list")
 
@@ -300,6 +315,20 @@ def busmember_list_view(request, bus_id):
     return render(request, "attendance/busmember_list.html", context)
 
 
+def busmember_version_list_view(request, bus_id):
+    busmember_list = (
+        BusMember.objects.filter(school=request.user.school, bus=bus_id)
+        .values("school", "bus", "version", "is_active", "started_at")
+        .distinct()
+    )
+
+    context = {
+        "busmember_list": busmember_list,
+        "bus_id": bus_id,
+    }
+    return render(request, "attendance/busmember_version_list.html", context)
+
+
 def busmember_change(request, bus_id):
     # Get active busmember_list for by bus_id
     busmember_list = BusMember.objects.filter(
@@ -385,6 +414,7 @@ def busmember_add(request, bus_id, grade_id):
         # Change is_active status to False for old busmember.
         for busmember in busmember_list:
             busmember.is_active = False
+            busmember.finished_at = datetime.datetime.now()
             busmember.save()
 
         return redirect("attendance:busmember-list", bus_id=bus_id)

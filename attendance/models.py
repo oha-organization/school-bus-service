@@ -74,9 +74,6 @@ class Bus(models.Model):
     village = models.ManyToManyField(Village)
 
     class Meta:
-        # Be aware though that there can be a performance hit to ordering
-        # results so don't order results if you don't need to.
-        # ordering = ["bus_number"]
         verbose_name_plural = "busses"
 
     def __str__(self):
@@ -157,9 +154,11 @@ class Attendance(models.Model):
 
     @property
     def number_of_total_student(self):
-        #return Student.objects.filter(bus=self.bus).count()
+        # return Student.objects.filter(bus=self.bus).count()
         return BusMember.objects.filter(
-            school=self.school, bus=self.bus, version=self.version,
+            school=self.school,
+            bus=self.bus,
+            version=self.version,
         ).count()
 
 
@@ -185,6 +184,9 @@ class BusMember(models.Model):
     bus = models.ForeignKey(Bus, on_delete=models.CASCADE, null=True, blank=True)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     version = models.IntegerField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateField(auto_now_add=True)
+    finished_at = models.DateTimeField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
     # Add here meta constraint for school bus student version

@@ -35,6 +35,11 @@ urlpatterns = [
         "bus/<int:bus_id>/busmember/", views.busmember_list_view, name="busmember-list"
     ),
     path(
+        "bus/<int:bus_id>/busmember/version/",
+        views.busmember_version_list_view,
+        name="busmember-version-list",
+    ),
+    path(
         "bus/<int:bus_id>/busmember/change/",
         views.busmember_change,
         name="busmember-change",
