@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance Change{% endblock title %}
+
+{% block content %}
+
+
+<h2>Unattended List:</h2>
+<p>Attendance: {{ attendance }}</p>
+<form method="post" action="{% url 'attendance:attendance-save' %}">{% csrf_token %}
+    Student Name | Absent <br>
+    {% for student in student_list %}
+        <label for="student{{ forloop.counter }}"> {{ student.first_name }}</label>
+        <input type="checkbox" id="student{{ forloop.counter }}" name="student_absent_list"
+               value="{{ student.id }}" {% if student in student_already_absent_list %} checked{% endif %}>
+        <br>
+    {% empty %}
+        <li>Sorry, no students in this list.</li>
+    {% endfor %}
+    <input type="submit" value="Save">
+</form>
+
+
+{% endblock content %}

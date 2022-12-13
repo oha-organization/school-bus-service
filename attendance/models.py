@@ -145,6 +145,7 @@ class Attendance(models.Model):
             f"Absent:{self.num_absent_student} | Total:{self.num_total_student} | {self.teacher.username} | "
             f"{self.is_signed}"
         )
+
     # def get_absolute_url(self):
     #     return reverse("attendance-detail", kwargs={"pk": self.pk})
 
@@ -172,8 +173,8 @@ class BusMember(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     version = models.IntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
-    started_at = models.DateField(auto_now_add=True)
-    finished_at = models.DateField(blank=True, null=True)
+    start_date = models.DateField(auto_now_add=True)
+    finish_date = models.DateField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
     # Add here meta constraint for school bus student version

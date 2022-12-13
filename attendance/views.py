@@ -19,6 +19,17 @@ def attendance_select(request):
 
 
 def attendance_display(request):
+    def get_or_create():
+        # Get or create new attendance
+        attendance, created = Attendance.objects.get_or_create(
+            school=request.user.school,
+            bus=bus,
+            direction=direction,
+            check_date=check_date,
+            defaults={"teacher": request.user},
+        )
+        return attendance, created
+
     bus = get_object_or_404(Bus.objects.all(), id=request.POST.get("bus"))
     check_date = request.POST.get("check_date")
     if request.POST["direction"] in ["COMING", "LEAVING"]:
@@ -26,50 +37,66 @@ def attendance_display(request):
     else:
         raise ValueError("Don't tamper post direction data!")
 
-    # If date lte than today choose correct busmemeber list and don't let teacher to change
     check_date = datetime.datetime.strptime(check_date, "%Y-%m-%d").date()
     today = datetime.date.today()
+
     if check_date == today:
-        print("Yes today, just get attendance")
+        attendance, created = get_or_create()
+        # If attendance is already exist get unattended student list
+        student_already_absent_list = []
+        if not created:
+            student_already_absent_list = Student.objects.filter(
+                absentstudent__attendance=attendance
+            )
+            student_list = Student.objects.filter(
+                school=request.user.school,
+                busmember__bus=bus,
+                busmember__version=attendance.version,
+            )
+        else:
+            student_list = Student.objects.filter(
+                school=request.user.school,
+                busmember__bus=bus,
+                busmember__is_active=True,
+            )
+            version = BusMember.objects.filter(
+                school=request.user.school, bus=bus, is_active=True
+            )
+
+            attendance.version = version[0].version
+            attendance.save()
     elif check_date < today:
-        # there is problem to find correct busmember list by date
-        print("Check date old only admin can change")
-        return redirect("home")
+        attendance, created = get_or_create()
+
+        is_busmember_exist_on_seleceted_date = BusMember.objects.filter(
+            start_date__lte=check_date, finish_date__gte=check_date
+        ).order_by("-version")
+        if is_busmember_exist_on_seleceted_date:
+            attendance, created = get_or_create()
+            version = is_busmember_exist_on_seleceted_date[0].version
+            if not created:
+                student_already_absent_list = Student.objects.filter(
+                    absentstudent__attendance=attendance
+                )
+            else:
+                attendance.version = version
+                attendance.save()
+
+            student_list = Student.objects.filter(
+                school=request.user.school,
+                busmember__bus=bus,
+                busmember__version=version,
+            )
+        else:
+            print(
+                "There is no Bus Member list for selected date. Please contact your system administrator."
+            )
     elif check_date > today:
         print("Check date future nobody can change")
         return redirect("home")
     else:
         print("Invalid date")
         return redirect("home")
-
-    # Get or create new attendance
-    attendance, created = Attendance.objects.get_or_create(
-        school=request.user.school,
-        bus=bus,
-        direction=direction,
-        check_date=check_date,
-        defaults={"teacher": request.user},
-    )
-
-    # If attendance is already exist get unattended student list
-    student_already_absent_list = []
-    if not created:
-        student_already_absent_list = Student.objects.filter(
-            absentstudent__attendance=attendance
-        )
-        student_list = Student.objects.filter(
-            school=request.user.school, busmember__bus=bus, busmember__version=attendance.version
-        )
-    else:
-        student_list = Student.objects.filter(
-            school=request.user.school, busmember__bus=bus, busmember__is_active=True
-        )
-        version = BusMember.objects.filter(
-            school=request.user.school, bus=bus, is_active=True
-        )
-
-        attendance.version = version[0].version
-        attendance.save()
 
     request.session["attendance_id"] = attendance.id
     request.session["attendance_version"] = attendance.version
@@ -88,7 +115,8 @@ def attendance_save(request):
     if request.method == "POST":
         # For security reason check absent_students are in bus student_list
         student_list = Student.objects.filter(
-            busmember__bus=request.session["bus_id"], busmember__version=request.session["attendance_version"]
+            busmember__bus=request.session["bus_id"],
+            busmember__version=request.session["attendance_version"],
         )
         student_list = [str(student.id) for student in student_list]
         student_absent_list = request.POST.getlist("student_absent_list")
@@ -328,7 +356,7 @@ def busmember_list_view(request, bus_id):
 def busmember_version_list_view(request, bus_id):
     busmember_list = (
         BusMember.objects.filter(school=request.user.school, bus=bus_id)
-        .values("school", "bus", "version", "is_active", "started_at")
+        .values("school", "bus", "version", "is_active", "start_date")
         .distinct()
     )
 
@@ -424,7 +452,7 @@ def busmember_add(request, bus_id, grade_id):
         # Change is_active status to False for old busmember.
         for busmember in busmember_list:
             busmember.is_active = False
-            busmember.finished_at = datetime.datetime.now()
+            busmember.finish_date = datetime.date.today()
             busmember.save()
 
         return redirect("attendance:busmember-list", bus_id=bus_id)
@@ -459,3 +487,27 @@ def bus_list_view(request):
         "bus_list": bus_list,
     }
     return render(request, "attendance/bus_list.html", context)
+
+
+def attendance_change(request, attendance_id):
+    attendance = get_object_or_404(
+        Attendance.objects.filter(school=request.user.school), id=attendance_id
+    )
+    student_list = Student.objects.filter(
+        school=request.user.school,
+        busmember__bus=attendance.bus,
+        busmember__version=attendance.version,
+    )
+    student_already_absent_list = Student.objects.filter(
+        school=request.user.school,
+        busmember__bus=attendance.bus,
+        busmember__version=attendance.version,
+        absentstudent__attendance=attendance,
+    )
+    request.session["attendance_id"] = attendance.id
+    context = {
+        "student_list": student_list,
+        "student_already_absent_list": student_already_absent_list,
+        "attendance": attendance,
+    }
+    return render(request, "attendance/attendance_change.html", context)

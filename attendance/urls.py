@@ -14,6 +14,11 @@ urlpatterns = [
         views.attendance_detail,
         name="attendance-detail",
     ),
+    path(
+        "attendance/<int:attendance_id>/change/",
+        views.attendance_change,
+        name="attendance-change",
+    ),
     path("attendance/", views.attendance_list_view, name="attendance-list"),
     path("grade/", views.grade_list_view, name="grade-list"),
     path("grade/add/", views.grade_add, name="grade-add"),
