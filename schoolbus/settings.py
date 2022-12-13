@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "accounts.apps.AccountsConfig",
     "attendance.apps.AttendanceConfig",
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
