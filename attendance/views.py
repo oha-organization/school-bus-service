@@ -102,6 +102,8 @@ def attendance_save(request):
         # Touch Attendance Model for update to signed_at field
         attendance.is_signed = True
         attendance.teacher = request.user
+        attendance.num_absent_student = len(student_absent_list)
+        attendance.num_total_student = len(student_list)
         attendance.save()
 
         # return redirect("attendance:attendance-detail", attendance.id)

@@ -4,12 +4,12 @@
 
 {% block content %}
 <h1>Bus: {{ attendance.bus }}, {{ attendance.check_date }} - {{ attendance.direction }}</h1>
-Total students number: {{ attendance.number_of_total_student }}<br>
-Absents students number: {{ attendance.number_of_absent_student }}
+Total students number: {{ attendance.num_total_student }}<br>
+Absents students number: {{ attendance.num_absent_student }}
 
 <h2>Unattended List:</h2>
 <ul>
-    {% for attendance in attendance.absent_student_set.all %}
+    {% for attendance in attendance.absentstudent_set.all %}
         <li>{{ attendance.student }}</li>
     {% empty %}
         <li>All students are on the bus.</li>

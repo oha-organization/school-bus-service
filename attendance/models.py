@@ -126,6 +126,8 @@ class Attendance(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     signed_at = models.DateTimeField(auto_now=True)
     is_signed = models.BooleanField(default=False)
+    num_absent_student = models.PositiveIntegerField(default=0, blank=True, null=True)
+    num_total_student = models.PositiveIntegerField(blank=True, null=True)
 
     class Meta:
         ordering = ["-check_date"]
@@ -140,26 +142,11 @@ class Attendance(models.Model):
         return (
             f"{self.school.name} | {self.bus.bus_number} | {self.check_date} | {self.direction} | "
             f"version:{self.version} | "
-            f"Absent:{self.number_of_absent_student} | Total:{self.number_of_total_student} | {self.teacher.username} | "
+            f"Absent:{self.num_absent_student} | Total:{self.num_total_student} | {self.teacher.username} | "
             f"{self.is_signed}"
         )
-
     # def get_absolute_url(self):
     #     return reverse("attendance-detail", kwargs={"pk": self.pk})
-
-    @property
-    def number_of_absent_student(self):
-        return AbsentStudent.objects.filter(attendance=self.id).count()
-        # return self.attendance_set.count()
-
-    @property
-    def number_of_total_student(self):
-        # return Student.objects.filter(bus=self.bus).count()
-        return BusMember.objects.filter(
-            school=self.school,
-            bus=self.bus,
-            version=self.version,
-        ).count()
 
 
 class AbsentStudent(models.Model):
@@ -186,7 +173,7 @@ class BusMember(models.Model):
     version = models.IntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateField(auto_now_add=True)
-    finished_at = models.DateTimeField(blank=True, null=True)
+    finished_at = models.DateField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
     # Add here meta constraint for school bus student version
