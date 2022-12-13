@@ -126,7 +126,7 @@ class Attendance(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     signed_at = models.DateTimeField(auto_now=True)
     is_signed = models.BooleanField(default=False)
-    num_absent_student = models.PositiveIntegerField(default=0, blank=True, null=True)
+    num_absent_student = models.PositiveIntegerField(blank=True, null=True)
     num_total_student = models.PositiveIntegerField(blank=True, null=True)
 
     class Meta:

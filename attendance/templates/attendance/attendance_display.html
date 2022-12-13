@@ -4,7 +4,7 @@
 
 {% block content %}
 <h1>Bus: {{ attendance.bus }}, {{ attendance.check_date }} - {{ attendance.direction }}</h1>
-<p>Signature: {{ attendance }}</p>
+<p>Attendance: {{ attendance }}</p>
 
 <form method="post" action="{% url 'attendance:attendance-save' %}">{% csrf_token %}
     Student Name | Absent <br>

@@ -34,19 +34,13 @@ def attendance_display(request):
     elif check_date < today:
         # there is problem to find correct busmember list by date
         print("Check date old only admin can change")
-    else:
+        return redirect("home")
+    elif check_date > today:
         print("Check date future nobody can change")
-
-    student_list = Student.objects.filter(
-        school=request.user.school, busmember__bus=bus, busmember__is_active=True
-    )
-    version = BusMember.objects.filter(
-        school=request.user.school, bus=bus, is_active=True
-    )
-    if not version:
-        version = 0
+        return redirect("home")
     else:
-        version = version[0].version
+        print("Invalid date")
+        return redirect("home")
 
     # Get or create new attendance
     attendance, created = Attendance.objects.get_or_create(
@@ -54,11 +48,8 @@ def attendance_display(request):
         bus=bus,
         direction=direction,
         check_date=check_date,
-        defaults={"teacher": request.user, "version": version},
+        defaults={"teacher": request.user},
     )
-
-    request.session["attendance_id"] = attendance.id
-    request.session["bus_id"] = bus.id
 
     # If attendance is already exist get unattended student list
     student_already_absent_list = []
@@ -66,6 +57,23 @@ def attendance_display(request):
         student_already_absent_list = Student.objects.filter(
             absentstudent__attendance=attendance
         )
+        student_list = Student.objects.filter(
+            school=request.user.school, busmember__bus=bus, busmember__version=attendance.version
+        )
+    else:
+        student_list = Student.objects.filter(
+            school=request.user.school, busmember__bus=bus, busmember__is_active=True
+        )
+        version = BusMember.objects.filter(
+            school=request.user.school, bus=bus, is_active=True
+        )
+
+        attendance.version = version[0].version
+        attendance.save()
+
+    request.session["attendance_id"] = attendance.id
+    request.session["attendance_version"] = attendance.version
+    request.session["bus_id"] = bus.id
 
     context = {
         "student_list": student_list,
@@ -80,7 +88,7 @@ def attendance_save(request):
     if request.method == "POST":
         # For security reason check absent_students are in bus student_list
         student_list = Student.objects.filter(
-            busmember__bus=request.session["bus_id"], busmember__is_active=True
+            busmember__bus=request.session["bus_id"], busmember__version=request.session["attendance_version"]
         )
         student_list = [str(student.id) for student in student_list]
         student_absent_list = request.POST.getlist("student_absent_list")
