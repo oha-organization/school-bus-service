@@ -36,9 +36,7 @@ urlpatterns = [
         name="teacher-change-password",
     ),
     path("bus/", views.bus_list_view, name="bus-list"),
-    path(
-        "bus/<int:bus_id>/busmember/", views.busmember_list_view, name="busmember-list"
-    ),
+    path("bus/<int:bus_id>/", views.bus_detail, name="bus-detail"),
     path(
         "bus/<int:bus_id>/busmember/version/",
         views.busmember_version_list_view,

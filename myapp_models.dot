@@ -1,6 +1,6 @@
 digraph model_graph {
   // Dotfile by Django-Extensions graph_models
-  // Created: 2022-12-13 02:11
+  // Created: 2022-12-15 01:40
   // Cli Options: -a --dot -o myapp_models.dot
 
   fontname = "Roboto"
@@ -477,74 +477,6 @@ digraph model_graph {
 
 
 
-  attendance_models_City [label=<
-    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
-    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
-    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
-    City
-    </B></FONT></TD></TR>
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto"><B>id</B></FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto"><B>BigAutoField</B></FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto">name</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto">CharField</FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto">post_code</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto">CharField</FONT>
-    </TD></TR>
-  
-  
-    </TABLE>
-    >]
-
-  attendance_models_District [label=<
-    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
-    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
-    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
-    District
-    </B></FONT></TD></TR>
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto"><B>id</B></FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto"><B>BigAutoField</B></FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto"><B>city</B></FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto">name</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto">CharField</FONT>
-    </TD></TR>
-  
-  
-    </TABLE>
-    >]
-
   attendance_models_School [label=<
     <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
     <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
@@ -562,41 +494,9 @@ digraph model_graph {
   
   
     <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT COLOR="#7B7B7B" FACE="Roboto"><B>city</B></FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT COLOR="#7B7B7B" FACE="Roboto"><B>ForeignKey (id)</B></FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT COLOR="#7B7B7B" FACE="Roboto"><B>district</B></FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT COLOR="#7B7B7B" FACE="Roboto"><B>ForeignKey (id)</B></FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">address_detail</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">CharField</FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
     <FONT FACE="Roboto">code</FONT>
     </TD><TD ALIGN="LEFT">
     <FONT FACE="Roboto">IntegerField</FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto">is_active</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto">BooleanField</FONT>
     </TD></TR>
   
   
@@ -611,11 +511,11 @@ digraph model_graph {
     </TABLE>
     >]
 
-  attendance_models_Village [label=<
+  attendance_models_Destination [label=<
     <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
     <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
     <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
-    Village
+    Destination
     </B></FONT></TD></TR>
   
   
@@ -762,6 +662,14 @@ digraph model_graph {
   
   
     <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#7B7B7B" FACE="Roboto"><B>bus</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#7B7B7B" FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
     <FONT FACE="Roboto"><B>grade</B></FONT>
     </TD><TD ALIGN="LEFT">
     <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
@@ -771,14 +679,6 @@ digraph model_graph {
   
     <TR><TD ALIGN="LEFT" BORDER="0">
     <FONT FACE="Roboto"><B>school</B></FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto"><B>village</B></FONT>
     </TD><TD ALIGN="LEFT">
     <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
     </TD></TR>
@@ -876,44 +776,20 @@ digraph model_graph {
   
   
     <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">num_absent_student</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">PositiveIntegerField</FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">num_total_student</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">PositiveIntegerField</FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
     <FONT COLOR="#7B7B7B" FACE="Roboto">signed_at</FONT>
     </TD><TD ALIGN="LEFT">
     <FONT COLOR="#7B7B7B" FACE="Roboto">DateTimeField</FONT>
     </TD></TR>
   
   
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">version</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">IntegerField</FONT>
-    </TD></TR>
-  
-  
     </TABLE>
     >]
 
-  attendance_models_AbsentStudent [label=<
+  attendance_models_StudentAttendance [label=<
     <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
     <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
     <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
-    AbsentStudent
+    StudentAttendance
     </B></FONT></TD></TR>
   
   
@@ -940,85 +816,11 @@ digraph model_graph {
     </TD></TR>
   
   
-    </TABLE>
-    >]
-
-  attendance_models_BusMember [label=<
-    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
-    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
-    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
-    BusMember
-    </B></FONT></TD></TR>
-  
   
     <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto"><B>id</B></FONT>
+    <FONT COLOR="#7B7B7B" FACE="Roboto">present</FONT>
     </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto"><B>BigAutoField</B></FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT COLOR="#7B7B7B" FACE="Roboto"><B>bus</B></FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT COLOR="#7B7B7B" FACE="Roboto"><B>ForeignKey (id)</B></FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT COLOR="#7B7B7B" FACE="Roboto"><B>school</B></FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT COLOR="#7B7B7B" FACE="Roboto"><B>ForeignKey (id)</B></FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto"><B>student</B></FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">created_at</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">DateTimeField</FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">finish_date</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">DateField</FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto">is_active</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto">BooleanField</FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">start_date</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">DateField</FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto">version</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto">IntegerField</FONT>
+    <FONT COLOR="#7B7B7B" FACE="Roboto">BooleanField</FONT>
     </TD></TR>
   
   
@@ -1080,17 +882,8 @@ digraph model_graph {
   [label=" abstract\ninheritance"] [arrowhead=empty, arrowtail=none, dir=both];
 
 
-  attendance_models_District -> attendance_models_City
-  [label=" city (district)"] [arrowhead=none, arrowtail=dot, dir=both];
-
-  attendance_models_School -> attendance_models_City
-  [label=" city (school)"] [arrowhead=none, arrowtail=dot, dir=both];
-
-  attendance_models_School -> attendance_models_District
-  [label=" district (school)"] [arrowhead=none, arrowtail=dot, dir=both];
-
-  attendance_models_Village -> attendance_models_School
-  [label=" school (village)"] [arrowhead=none, arrowtail=dot, dir=both];
+  attendance_models_Destination -> attendance_models_School
+  [label=" school (destination)"] [arrowhead=none, arrowtail=dot, dir=both];
 
   attendance_models_Bus -> attendance_models_School
   [label=" school (bus)"] [arrowhead=none, arrowtail=dot, dir=both];
@@ -1098,8 +891,8 @@ digraph model_graph {
   attendance_models_Bus -> accounts_models_User
   [label=" driver (bus)"] [arrowhead=none, arrowtail=dot, dir=both];
 
-  attendance_models_Bus -> attendance_models_Village
-  [label=" village (bus)"] [arrowhead=dot arrowtail=dot, dir=both];
+  attendance_models_Bus -> attendance_models_Destination
+  [label=" destinations (bus)"] [arrowhead=dot arrowtail=dot, dir=both];
 
   attendance_models_Grade -> attendance_models_School
   [label=" school (grade)"] [arrowhead=none, arrowtail=dot, dir=both];
@@ -1107,11 +900,11 @@ digraph model_graph {
   attendance_models_Student -> attendance_models_School
   [label=" school (student)"] [arrowhead=none, arrowtail=dot, dir=both];
 
+  attendance_models_Student -> attendance_models_Bus
+  [label=" bus (student)"] [arrowhead=none, arrowtail=dot, dir=both];
+
   attendance_models_Student -> attendance_models_Grade
   [label=" grade (student)"] [arrowhead=none, arrowtail=dot, dir=both];
-
-  attendance_models_Student -> attendance_models_Village
-  [label=" village (student)"] [arrowhead=none, arrowtail=dot, dir=both];
 
   attendance_models_Attendance -> attendance_models_School
   [label=" school (attendance)"] [arrowhead=none, arrowtail=dot, dir=both];
@@ -1122,20 +915,11 @@ digraph model_graph {
   attendance_models_Attendance -> accounts_models_User
   [label=" teacher (attendance)"] [arrowhead=none, arrowtail=dot, dir=both];
 
-  attendance_models_AbsentStudent -> attendance_models_Attendance
-  [label=" attendance (absentstudent)"] [arrowhead=none, arrowtail=dot, dir=both];
+  attendance_models_StudentAttendance -> attendance_models_Attendance
+  [label=" attendance (studentattendance)"] [arrowhead=none, arrowtail=dot, dir=both];
 
-  attendance_models_AbsentStudent -> attendance_models_Student
-  [label=" student (absentstudent)"] [arrowhead=none, arrowtail=dot, dir=both];
-
-  attendance_models_BusMember -> attendance_models_School
-  [label=" school (busmember)"] [arrowhead=none, arrowtail=dot, dir=both];
-
-  attendance_models_BusMember -> attendance_models_Bus
-  [label=" bus (busmember)"] [arrowhead=none, arrowtail=dot, dir=both];
-
-  attendance_models_BusMember -> attendance_models_Student
-  [label=" student (busmember)"] [arrowhead=none, arrowtail=dot, dir=both];
+  attendance_models_StudentAttendance -> attendance_models_Student
+  [label=" student (studentattendance)"] [arrowhead=none, arrowtail=dot, dir=both];
 
 
 }

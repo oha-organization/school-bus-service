@@ -2,10 +2,9 @@ import datetime
 
 from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse
 from django.contrib.auth import get_user_model
 
-from .models import School, Bus, Student, AbsentStudent, Attendance, Grade, BusMember
+from .models import School, Bus, Student, StudentAttendance, Attendance, Grade
 
 
 def home(request):
@@ -489,25 +488,21 @@ def bus_list_view(request):
     return render(request, "attendance/bus_list.html", context)
 
 
+def bus_detail(request, bus_id):
+    bus = get_object_or_404(Bus.objects.all(), id=bus_id)
+    context = {"bus": bus}
+    return render(request, "attendance/bus_detail.html", context)
+
+
 def attendance_change(request, attendance_id):
     attendance = get_object_or_404(
         Attendance.objects.filter(school=request.user.school), id=attendance_id
     )
-    student_list = Student.objects.filter(
-        school=request.user.school,
-        busmember__bus=attendance.bus,
-        busmember__version=attendance.version,
-    )
-    student_already_absent_list = Student.objects.filter(
-        school=request.user.school,
-        busmember__bus=attendance.bus,
-        busmember__version=attendance.version,
-        absentstudent__attendance=attendance,
-    )
+    studentattendance_list = StudentAttendance.objects.filter(attendance=attendance)
+
     request.session["attendance_id"] = attendance.id
     context = {
-        "student_list": student_list,
-        "student_already_absent_list": student_already_absent_list,
+        "studentattendance_list": studentattendance_list,
         "attendance": attendance,
     }
     return render(request, "attendance/attendance_change.html", context)

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Bus Detail{% endblock title %}
+
+{% block content %}
+
+<h2>Bus {{bus}} Detail:</h2>
+<ul>
+    {% for student in bus.student_set.all %}
+        <li>{{ student }}</li>
+    {% empty %}
+        <li>All students are on the bus.</li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'attendance:attendance-change' bus.id %}">Change</a>
+<br>
+<a href="{% url 'attendance:attendance-select' %}">Get new attendance</a>
+
+{% endblock content %}

@@ -7,10 +7,10 @@
 {% if bus_list %}
     <ul>
     {% for bus in bus_list %}
-        <li>{{ bus }} -><a href="{% url 'attendance:busmember-list' bus.id %}">List Member</a></li>
+        <li>{{ bus }} -><a href="{% url 'attendance:bus-detail' bus.id %}">List Member</a></li>
     {% endfor %}
     </ul>
 {% else %}
-    <p>No grades are available.</p>
+    <p>No bus are available.</p>
 {% endif %}
 {% endblock content %}
