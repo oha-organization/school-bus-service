@@ -5,6 +5,12 @@
 {% block content %}
 
 <h2>Bus {{bus}} Detail:</h2>
+School: {{ bus.school }}<br>
+Driver: {{ bus.driver }}<br>
+Bus_number: {{ bus.bus_number }}<br>
+Capacity: {{ bus.capacity }}<br>
+Plate: {{ bus.plate }}<br>
+Destinations: {{ bus.destinations.all }}<br>
 <ul>
     {% for student in bus.student_set.all %}
         <li>{{ student }}</li>
@@ -13,7 +19,7 @@
     {% endfor %}
 </ul>
 
-<a href="{% url 'attendance:attendance-change' bus.id %}">Change</a>
+<a href="{% url 'attendance:bus-change' bus.id %}">Change</a>
 <br>
 <a href="{% url 'attendance:attendance-select' %}">Get new attendance</a>
 

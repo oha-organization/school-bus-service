@@ -19,6 +19,11 @@ urlpatterns = [
         views.attendance_change,
         name="attendance-change",
     ),
+    path(
+        "attendance/<int:attendance_id>/delete/",
+        views.attendance_delete,
+        name="attendance-delete",
+    ),
     path("attendance/", views.attendance_list_view, name="attendance-list"),
     path("grade/", views.grade_list_view, name="grade-list"),
     path("grade/add/", views.grade_add, name="grade-add"),
@@ -37,6 +42,7 @@ urlpatterns = [
     ),
     path("bus/", views.bus_list_view, name="bus-list"),
     path("bus/<int:bus_id>/", views.bus_detail, name="bus-detail"),
+    path("bus/<int:bus_id>/change/", views.bus_change, name="bus-change"),
     path(
         "bus/<int:bus_id>/busmember/version/",
         views.busmember_version_list_view,

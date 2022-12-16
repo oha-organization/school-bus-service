@@ -12,7 +12,7 @@
     Student Name | Absent <br>
     {% for studentattendance in studentattendance_list %}
         <label for="student{{ forloop.counter }}"> {{ studentattendance.student }}</label>
-        <input type="checkbox" id="student{{ forloop.counter }}" name="present" value="{{ studentattendance.student.id }}" {% if studentattendance.present %}checked{% endif %}>
+        <input type="checkbox" id="student{{ forloop.counter }}" name="present_list" value="{{ studentattendance.student.id }}" {% if studentattendance.present %}checked{% endif %}>
         <br>
     {% empty %}
         <li>Sorry, no students in this list.</li>

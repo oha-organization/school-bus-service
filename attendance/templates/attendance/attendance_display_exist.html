@@ -5,7 +5,6 @@
 {% block content %}
 <h1>Bus {{ attendance.bus }} (Exist)</h1>
 <p>Attendance: {{ attendance }}</p>
-{{studentattendance_list}}
 <form method="post" action="{% url 'attendance:attendance-save' %}">{% csrf_token %}
     Student Name | Present <br>
     {% for studentattendance in studentattendance_list %}

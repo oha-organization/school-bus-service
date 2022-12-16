@@ -5,7 +5,6 @@
 {% block content %}
 <h1>{{ attendance }}</h1>
 
-
 <h2>Unattended List:</h2>
 <ul>
     Student Name | Absent <br>
@@ -16,7 +15,8 @@
     {% endfor %}
 </ul>
 
-<a href="{% url 'attendance:attendance-change' attendance.id %}">Change</a>
+<a href="{% url 'attendance:attendance-change' attendance.id %}">Change</a> |
+<a href="{% url 'attendance:attendance-delete' attendance.id %}">DELETE</a>
 <br>
 <a href="{% url 'attendance:attendance-select' %}">Get new attendance</a>
 

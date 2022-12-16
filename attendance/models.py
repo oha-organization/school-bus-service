@@ -104,8 +104,7 @@ class Attendance(models.Model):
     def __str__(self):
         return (
             f"{self.school.name} | {self.bus} | {self.check_date} | {self.direction} | "
-            f"{self.teacher} | "
-            f"{self.is_signed}"
+            f"{self.teacher} | {self.is_signed}"
         )
 
     # def get_absolute_url(self):

@@ -64,14 +64,16 @@ def attendance_save(request):
         attendance = get_object_or_404(
             Attendance.objects.filter(school=request.user.school), id=request.session.get("attendance_id")
         )
-        # Clear StudentAttendance list if already signed
+        # Delete StudentAttendance list if already signed
         if attendance.is_signed:
             StudentAttendance.objects.filter(attendance=attendance).delete()
 
         # Add all student with present and absent value
         for student in student_list:
-            if student.id in present_list:
-                StudentAttendance.objects.create(attendance=attendance, student_id=student, present=True)
+            if str(student.id) in present_list:
+                StudentAttendance.objects.create(attendance=attendance, student_id=student.id, present=True)
+            else:
+                StudentAttendance.objects.create(attendance=attendance, student_id=student.id, present=False)
 
         # Touch Attendance Model for update to signed_at field
         attendance.is_signed = True
@@ -119,6 +121,17 @@ def attendance_change(request, attendance_id):
         "attendance": attendance,
     }
     return render(request, "attendance/attendance_change.html", context)
+
+
+def attendance_delete(request, attendance_id):
+    attendance = get_object_or_404(
+        Attendance.objects.filter(school=request.user.school), id=attendance_id
+    )
+
+    attendance.delete()
+
+    # return redirect("attendance:attendance-detail", attendance.id)
+    return redirect("attendance:attendance-list")
 
 def grade_list_view(request):
     grade_list = Grade.objects.filter(school=request.user.school)
@@ -446,4 +459,30 @@ def bus_detail(request, bus_id):
     return render(request, "attendance/bus_detail.html", context)
 
 
+def bus_change(request, bus_id):
+    bus = get_object_or_404(Bus.objects.filter(school=request.user.school), id=bus_id)
+    driver_list = get_user_model().objects.filter(
+        school=request.user.school, role="DRIVER"
+    )
 
+    if request.method == "POST":
+        driver = request.POST["driver"]
+        bus_number = request.POST["bus_number"]
+        capacity = request.POST["capacity"]
+        plate = request.POST["plate"]
+        destinations = request.POST["destinations"]
+
+        bus.driver_id = driver
+        bus.bus_number = bus_number
+        bus.capacity = capacity
+        bus.plate = plate
+        bus.destinations.set(destinations)
+        try:
+            bus.save()
+        except Exception as e:
+            raise Http404("Update error.")
+
+        return redirect("attendance:bus-list")
+
+    context = {"bus": bus, "driver_list": driver_list}
+    return render(request, "attendance/bus_change.html", context)
