@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance get{% endblock title %}
+
+{% block content %}
+<h1>Bus {{ attendance.bus }} (Exist)</h1>
+<p>Attendance: {{ attendance }}</p>
+{{studentattendance_list}}
+<form method="post" action="{% url 'attendance:attendance-save' %}">{% csrf_token %}
+    Student Name | Present <br>
+    {% for studentattendance in studentattendance_list %}
+        <label for="student{{ forloop.counter }}"> {{ studentattendance.student }}</label>
+        <input type="checkbox" id="student{{ forloop.counter }}" name="present_list" value="{{ studentattendance.student.id }}" {% if studentattendance.present %} checked{% endif %}>
+        <br>
+    {% empty %}
+        <li>Sorry, no students in this list.</li>
+    {% endfor %}
+    <input type="submit" value="Save">
+</form>
+{% endblock content %}

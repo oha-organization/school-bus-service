@@ -119,7 +119,6 @@ class StudentAttendance(models.Model):
 
     class Meta:
         ordering = ["-attendance"]
-        verbose_name_plural = "studentstatus"
 
         constraints = [
             models.UniqueConstraint(
