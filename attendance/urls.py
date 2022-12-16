@@ -43,19 +43,4 @@ urlpatterns = [
     path("bus/", views.bus_list_view, name="bus-list"),
     path("bus/<int:bus_id>/", views.bus_detail, name="bus-detail"),
     path("bus/<int:bus_id>/change/", views.bus_change, name="bus-change"),
-    path(
-        "bus/<int:bus_id>/busmember/version/",
-        views.busmember_version_list_view,
-        name="busmember-version-list",
-    ),
-    path(
-        "bus/<int:bus_id>/busmember/change/",
-        views.busmember_change,
-        name="busmember-change",
-    ),
-    path(
-        "bus/<int:bus_id>/grade/<int:grade_id>/",
-        views.busmember_add,
-        name="busmember-add-by-grade",
-    ),
 ]
