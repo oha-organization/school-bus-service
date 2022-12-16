@@ -9,7 +9,7 @@
 <p>Attendance: {{ attendance }}</p>
 
 <form method="post" action="{% url 'attendance:attendance-save' %}">{% csrf_token %}
-    Student Name | Absent <br>
+    Student Name | Present <br>
     {% for studentattendance in studentattendance_list %}
         <label for="student{{ forloop.counter }}"> {{ studentattendance.student }}</label>
         <input type="checkbox" id="student{{ forloop.counter }}" name="present_list" value="{{ studentattendance.student.id }}" {% if studentattendance.present %}checked{% endif %}>

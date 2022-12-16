@@ -5,9 +5,9 @@
 {% block content %}
 <h1>{{ attendance }}</h1>
 
-<h2>Unattended List:</h2>
+<h2>Attendance:</h2>
 <ul>
-    Student Name | Absent <br>
+    Student Name | Present <br>
     {% for studentattendance in attendance.studentattendance_set.all %}
         <li>{{ studentattendance.student }} {{ studentattendance.present }}</li>
     {% empty %}
