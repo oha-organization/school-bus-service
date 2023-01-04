@@ -7,12 +7,12 @@
 
 <h2>Attendance:</h2>
 <ul>
-    Student Name | Present <br>
-    {% for studentattendance in attendance.studentattendance_set.all %}
-        <li>{{ studentattendance.student }} {{ studentattendance.present }}</li>
-    {% empty %}
-        <li>All students are on the bus.</li>
-    {% endfor %}
+  Student Name | Present <br>
+  {% for studentattendance in attendance.studentattendance_set.all %}
+  <li>{{ studentattendance.student }} {{ studentattendance.present }}</li>
+  {% empty %}
+  <li>All students are on the bus.</li>
+  {% endfor %}
 </ul>
 
 <a href="{% url 'attendance:attendance-change' attendance.id %}">Change</a> |

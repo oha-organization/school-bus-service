@@ -55,8 +55,8 @@ class Grade(models.Model):
         ordering = ["level"]
         constraints = [
             models.UniqueConstraint(
-                fields=["level", "branch"],
-                name="unique_grade_level_and_branch",
+                fields=["school", "level", "branch"],
+                name="unique_grade_school_level_and_branch",
             )
         ]
 

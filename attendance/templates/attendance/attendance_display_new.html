@@ -7,14 +7,14 @@
 <p>Attendance: {{ attendance }}</p>
 
 <form method="post" action="{% url 'attendance:attendance-save' %}">{% csrf_token %}
-    Student Name | Present <br>
-    {% for student in student_list %}
-        <label for="student{{ forloop.counter }}"> {{ student.first_name }}</label>
-        <input type="checkbox" id="student{{ forloop.counter }}" name="present_list" value="{{ student.id }}">
-        <br>
-    {% empty %}
-        <li>Sorry, no students in this list.</li>
-    {% endfor %}
-    <input type="submit" value="Save">
+  Student Name | Present <br>
+  {% for student in student_list %}
+    <label for="student{{ forloop.counter }}"> {{ student.first_name }}</label>
+    <input type="checkbox" id="student{{ forloop.counter }}" name="present_list" value="{{ student.id }}">Present
+    <br>
+  {% empty %}
+    <li>Sorry, no students in this list.</li>
+  {% endfor %}
+  <input type="submit" value="Save">
 </form>
 {% endblock content %}

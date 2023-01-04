@@ -4,12 +4,12 @@
 
 {% block content %}
 {% if grade_list %}
-    <ul>
-    {% for grade in grade_list %}
-        <li><a href="{% url 'attendance:grade-change' grade.id %}">{{ grade.level }}/{{ grade.branch }}</a></li>
-    {% endfor %}
-    </ul>
+<ul>
+  {% for grade in grade_list %}
+    <li><a href="{% url 'attendance:grade-change' grade.id %}">{{ grade.level }}/{{ grade.branch }}</a></li>
+  {% endfor %}
+</ul>
 {% else %}
-    <p>No grades are available.</p>
+  <p>No grades are available.</p>
 {% endif %}
 {% endblock content %}

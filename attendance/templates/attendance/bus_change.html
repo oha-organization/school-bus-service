@@ -7,31 +7,33 @@
 <h1>Bus Change</h1>
 
 <form action="" method="post">
-    {% csrf_token %}
-    Driver:
-    <select name="driver" required id="driver">
-        <option value selected>-----</option>
-        {% for driver in driver_list %}
-            <option value="{{ driver.id }}" {% if driver.id == bus.driver_id %} selected{% endif %}>{{ driver }}</option>
-        {% endfor %}
-    </select><br>
-    Bus_number:<br>
-    <input name="bus_number" value="{{ bus.bus_number }}">
-    <br><br>
-    Capacity:<br>
-    <input type="number" name="capacity" value="{{ bus.capacity }}">
-    <br><br>
-    Plate:<br>
-    <input name="plate" value="{{ bus.plate }}">
-    <br><br>
-    Destination:
-    <select name="destinations" required id="destinations">
-        <option value selected>-----</option>
-        {% for destination in bus.destinations.all %}
-            <option value="{{ destination.id }}">{{ destination }}</option>
-        {% endfor %}
-    </select>
-    <input type="submit" value="SAVE">
+  {% csrf_token %}
+  Driver:
+  <select name="driver" required id="driver">
+    <option value selected>-----</option>
+    {% for driver in driver_list %}
+    <option value="{{ driver.id }}" {% if driver.id == bus.driver_id %} selected{% endif %}>{{ driver }}</option>
+    {% endfor %}
+  </select><br>
+  Bus_number:<br>
+  <input name="bus_number" value="{{ bus.bus_number }}">
+  <br><br>
+  Capacity:<br>
+  <input type="number" name="capacity" value="{{ bus.capacity }}">
+  <br><br>
+  Plate:<br>
+  <input name="plate" value="{{ bus.plate }}">
+  <br><br>
+  <label for="destinations">Destinations:</label>
+  <select name="destinations" id="destinations" multiple>
+    {% for destination in destination_list %}
+    <option value="{{ destination.id }} {% if destination in bus.destination.all %}selected{% endif %}">{{ destination }}</option>
+    {% endfor %}
+  </select>
+  <br><br>
+  <input type="submit" value="SAVE">
 </form>
+
+
 
 {% endblock content %}

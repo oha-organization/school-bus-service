@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Bus Add{% endblock title %}
+
+{% block content %}
+
+<h1>Bus Add</h1>
+
+<form action="" method="post">
+    {% csrf_token %}
+    Driver:
+    <select name="driver" required id="driver">
+        <option value selected>-----</option>
+        {% for driver in driver_list %}
+            <option value="{{ driver.id }}" {% if driver.id == bus.driver_id %} selected{% endif %}>{{ driver }}</option>
+        {% endfor %}
+    </select><br>
+    Bus_number:<br>
+    <input name="bus_number"}">
+    <br><br>
+    Capacity:<br>
+    <input type="number" name="capacity"">
+    <br><br>
+    Plate:<br>
+    <input name="plate"">
+    <br><br>
+    <label for="destinations">Destinations:</label>
+    <select name="destinations" id="destinations" multiple>
+        {% for destination in destination_list %}
+            <option value="{{ destination.id }} {% if destination in bus.destination.all %}selected{% endif %}">{{ destination }}</option>
+        {% endfor %}
+    </select>
+    <br><br>
+    <input type="submit" value="SAVE">
+</form>
+
+{% endblock content %}

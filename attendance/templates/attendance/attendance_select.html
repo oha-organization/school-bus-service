@@ -5,20 +5,20 @@
 {% block content %}
 <h1>Attendance Choose</h1>
 <form method="post" action="{% url 'attendance:attendance-display' %}">{% csrf_token %}
-    <label for="check_date">Date:</label>
-    <input type="date" id="check_date" name="check_date" value="{{ today|date:'Y-m-d' }}">
-    <input type="radio" id="coming" name="direction" value="COMING" required>
-    <label for="coming">Coming</label>
-    <input type="radio" id="leaving" name="direction" value="LEAVING" required>
-    <label for="leaving">Leaving</label><br><br>
-    Bus:
-    <select name="bus" required id="bus">
-        <option value selected>-----</option>
-        {% for bus in bus_list %}
-            <option value="{{ bus.id }}">{{ bus.bus_number }}</option>
-        {% endfor %}
-    </select>
-    <input type="submit" value="Get attendance">
+  <label for="check_date">Date:</label>
+  <input type="date" id="check_date" name="check_date" value="{{ today|date:'Y-m-d' }}">
+  <input type="radio" id="coming" name="direction" value="COMING" required>
+  <label for="coming">Coming</label>
+  <input type="radio" id="leaving" name="direction" value="LEAVING" required>
+  <label for="leaving">Leaving</label><br><br>
+  Bus:
+  <select name="bus" required id="bus">
+    <option value selected>-----</option>
+    {% for bus in bus_list %}
+    <option value="{{ bus.id }}">{{ bus.bus_number }}</option>
+    {% endfor %}
+  </select>
+  <input type="submit" value="Get attendance">
 </form>
 
 <p><a href="{% url 'attendance:home' %}">Home page</a></p>

@@ -6,7 +6,15 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 
-from .models import School, Bus, Student, StudentAttendance, Attendance, Grade
+from .models import (
+    School,
+    Bus,
+    Student,
+    StudentAttendance,
+    Attendance,
+    Grade,
+    Destination,
+)
 
 
 def home(request):
@@ -334,30 +342,45 @@ def teacher_change_password(request, teacher_id):
 
 
 @login_required
-def student_add(request):
-    if request.method == "POST":
-        school = request.user.school
-        level = request.POST["level"]
-        branch = request.POST["branch"]
-
-        grade = Grade(school=school, level=level, branch=branch)
-        try:
-            grade.save()
-        except Exception as e:
-            raise Http404("Error is: ", e)
-
-        return redirect("attendance:home")
-
-    return render(request, "attendance/grade_add.html")
-
-
-@login_required
 def bus_list_view(request):
     bus_list = Bus.objects.filter(school=request.user.school)
     context = {
         "bus_list": bus_list,
     }
     return render(request, "attendance/bus_list.html", context)
+
+
+def bus_add(request):
+    driver_list = get_user_model().objects.filter(
+        school=request.user.school, role="DRIVER"
+    )
+    destination_list = Destination.objects.filter(school=request.user.school)
+
+    if request.method == "POST":
+        school = request.user.school
+        driver = request.POST["driver"]
+        bus_number = request.POST["bus_number"]
+        capacity = request.POST["capacity"]
+        plate = request.POST["plate"]
+        destinations = request.POST.getlist("destinations")
+
+        bus = Bus(
+            school=school,
+            driver_id=driver,
+            bus_number=bus_number,
+            capacity=capacity,
+            plate=plate,
+        )
+        try:
+            bus.save()
+            bus.destinations.set(destinations)
+        except Exception as e:
+            raise Http404("Error is: ", e)
+
+        return redirect("attendance:bus-detail", bus.id)
+
+    context = {"driver_list": driver_list, "destination_list": destination_list}
+    return render(request, "attendance/bus_add.html", context)
 
 
 @login_required
@@ -373,13 +396,14 @@ def bus_change(request, bus_id):
     driver_list = get_user_model().objects.filter(
         school=request.user.school, role="DRIVER"
     )
+    destination_list = Destination.objects.filter(school=request.user.school)
 
     if request.method == "POST":
         driver = request.POST["driver"]
         bus_number = request.POST["bus_number"]
         capacity = request.POST["capacity"]
         plate = request.POST["plate"]
-        destinations = request.POST["destinations"]
+        destinations = request.POST.getlist("destinations")
 
         bus.driver_id = driver
         bus.bus_number = bus_number
@@ -393,5 +417,91 @@ def bus_change(request, bus_id):
 
         return redirect("attendance:bus-list")
 
-    context = {"bus": bus, "driver_list": driver_list}
+    context = {
+        "bus": bus,
+        "driver_list": driver_list,
+        "destination_list": destination_list,
+    }
     return render(request, "attendance/bus_change.html", context)
+
+
+def student_list_view(request):
+    student_list = Student.objects.filter(school=request.user.school)
+    context = {
+        "student_list": student_list,
+    }
+    return render(request, "attendance/student_list.html", context)
+
+
+@login_required
+def student_add(request):
+    if request.method == "POST":
+        school = request.user.school
+        bus = request.POST["bus"]
+        first_name = request.POST["first_name"]
+        last_name = request.POST["last_name"]
+        grade = request.POST["grade"]
+
+        student = Student(
+            school=school,
+            bus_id=bus,
+            first_name=first_name,
+            last_name=last_name,
+            grade_id=grade,
+        )
+        try:
+            student.save()
+        except Exception as e:
+            raise Http404("Error is: ", e)
+
+        return redirect("attendance:home")
+
+    bus_list = Bus.objects.filter(school=request.user.school)
+    grade_list = Grade.objects.filter(school=request.user.school)
+
+    context = {
+        "bus_list": bus_list,
+        "grade_list": grade_list,
+    }
+    return render(request, "attendance/student_add.html", context)
+
+
+def student_detail(request, student_id):
+    student = get_object_or_404(Student.objects.all(), id=student_id)
+    context = {
+        "student": student,
+    }
+    return render(request, "attendance/student_detail.html", context)
+
+
+def student_change(request, student_id):
+    student = get_object_or_404(
+        Student.objects.filter(school=request.user.school), id=student_id
+    )
+
+    if request.method == "POST":
+        bus = request.POST["bus"]
+        first_name = request.POST["first_name"]
+        last_name = request.POST["last_name"]
+        grade = request.POST["grade"]
+
+        student.bus_id = bus
+        student.first_name = first_name
+        student.last_name = last_name
+        student.grade_id = grade
+        try:
+            student.save()
+        except Exception as e:
+            raise Http404("Update Error.", e)
+
+        return redirect("attendance:student-detail", student.id)
+
+    bus_list = Bus.objects.filter(school=request.user.school)
+    grade_list = Grade.objects.filter(school=request.user.school)
+
+    context = {
+        "student": student,
+        "bus_list": bus_list,
+        "grade_list": grade_list,
+    }
+    return render(request, "attendance/student_change.html", context)

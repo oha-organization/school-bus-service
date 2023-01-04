@@ -3,24 +3,24 @@
 {% block title %}Bus Detail{% endblock title %}
 
 {% block content %}
-
 <h2>Bus {{bus}} Detail:</h2>
 School: {{ bus.school }}<br>
 Driver: {{ bus.driver }}<br>
 Bus_number: {{ bus.bus_number }}<br>
 Capacity: {{ bus.capacity }}<br>
 Plate: {{ bus.plate }}<br>
-Destinations: {{ bus.destinations.all }}<br>
+Destinations: {% for destination in bus.destinations.all %} {{ destination }}, {% endfor %}<br>
+
 <ul>
-    {% for student in bus.student_set.all %}
-        <li>{{ student }}</li>
-    {% empty %}
-        <li>All students are on the bus.</li>
-    {% endfor %}
+  {% for student in bus.student_set.all %}
+  <li>{{ student }}</li>
+  {% empty %}
+  <li>There is no student on this bus.</li>
+  {% endfor %}
 </ul>
 
 <a href="{% url 'attendance:bus-change' bus.id %}">Change</a>
 <br>
-<a href="{% url 'attendance:attendance-select' %}">Get new attendance</a>
+<a href="{% url 'attendance:bus-list' %}">Bus List</a>
 
 {% endblock content %}
