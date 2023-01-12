@@ -449,14 +449,24 @@ def destination_add(request):
     return render(request, "attendance/destination_add.html")
 
 
+def user_role_check(user):
+    # check if the user has the correct roles
+    return user.role == "ADMIN" or user.role == "MANAGER"
+
+
+@login_required
+@user_passes_test(user_role_check)
 def destination_detail(request, destination_id):
-    destination = get_object_or_404(Destination.objects.all(), id=destination_id)
+    destination = get_object_or_404(
+        Destination.objects.filter(school=request.user.school), id=destination_id
+    )
     context = {
         "destination": destination,
     }
     return render(request, "attendance/destination_detail.html", context)
 
 
+@login_required
 def destination_change(request, destination_id):
     destination = get_object_or_404(
         Destination.objects.filter(school=request.user.school), id=destination_id
