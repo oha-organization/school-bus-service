@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Destination List{% endblock title %}
+
+{% block content %}
+<h1>Destination List</h1>
+
+<ul>
+{% for destination in destination_list %}
+    <li>{{ destination.name }} -> <a href="{% url 'attendance:destination-detail' destination.id %}">Detail</a></li>
+{% empty %}
+    <li>Sorry, no destination in this list.</li>
+{% endfor %}
+</ul>
+{% endblock content %}

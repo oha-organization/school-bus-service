@@ -22,8 +22,8 @@
     {% endfor %}
   </select><br>
   Bus:
-  <select name="bus" id="bus" required>
-    <option value selected>-----</option>
+  <select name="bus" id="bus">
+    <option value="" selected>-----</option>
     {% for bus in bus_list %}
     <option value="{{ bus.id }}">{{ bus }}</option>
     {% endfor %}

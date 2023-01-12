@@ -425,6 +425,59 @@ def bus_change(request, bus_id):
     return render(request, "attendance/bus_change.html", context)
 
 
+def destination_list_view(request):
+    destination_list = Destination.objects.filter(school=request.user.school)
+    context = {
+        "destination_list": destination_list,
+    }
+    return render(request, "attendance/destination_list.html", context)
+
+
+def destination_add(request):
+    if request.method == "POST":
+        school = request.user.school
+        name = request.POST["name"]
+
+        destination = Destination(school=school, name=name)
+        try:
+            destination.save()
+        except Exception as e:
+            raise Http404("Error is: ", e)
+
+        return redirect("attendance:home")
+
+    return render(request, "attendance/destination_add.html")
+
+
+def destination_detail(request, destination_id):
+    destination = get_object_or_404(Destination.objects.all(), id=destination_id)
+    context = {
+        "destination": destination,
+    }
+    return render(request, "attendance/destination_detail.html", context)
+
+
+def destination_change(request, destination_id):
+    destination = get_object_or_404(
+        Destination.objects.filter(school=request.user.school), id=destination_id
+    )
+    if request.method == "POST":
+        name = request.POST["name"]
+
+        destination.name = name
+        try:
+            destination.save()
+        except Exception as e:
+            raise Http404("Update error.")
+
+        return redirect("attendance:destination-list")
+
+    context = {
+        "destination": destination,
+    }
+    return render(request, "attendance/destination_change.html", context)
+
+
 def student_list_view(request):
     student_list = Student.objects.filter(school=request.user.school)
     context = {

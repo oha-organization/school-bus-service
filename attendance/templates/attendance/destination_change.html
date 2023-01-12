@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Destination Change{% endblock title %}
+
+{% block content %}
+
+<h1>Destination Grade</h1>
+
+<form action="" method="post">
+  {% csrf_token %}
+  Name:<br>
+  <input name="name" value="{{ destination.name }}">
+  <br><br>
+  <input type="submit" value="SAVE">
+</form>
+
+{% endblock content %}
