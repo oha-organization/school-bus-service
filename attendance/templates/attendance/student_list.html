@@ -4,13 +4,15 @@
 
 {% block content %}
 <h1>Student List</h1>
-{% if student_list %}
+<p>Student Add -> <a href="{% url 'attendance:student-add' %}">+ Add Student</a></p>
+
 <ul>
-  {% for student in student_list %}
-  <li>{{ student }} -><a href="{% url 'attendance:student-detail' student.id %}">Detail</a></li>
-  {% endfor %}
+{% for student in student_list %}
+  <li>{{ student }} | <a href="{% url 'attendance:student-detail' student.id %}">detail</a>
+  | <a href="{% url 'attendance:student-change' student.id %}"> edit</a>
+  | <a href="#"> delete </a></li>
+{% empty %}
+  <li>No students are available.</li>
+{% endfor %}
 </ul>
-{% else %}
-<p>There are no students.</p>
-{% endif %}
 {% endblock content %}

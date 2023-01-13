@@ -214,6 +214,24 @@ def grade_change(request, grade_id):
 
 
 @login_required
+def grade_delete(request, grade_id):
+    grade = get_object_or_404(
+        Grade.objects.filter(school=request.user.school), id=grade_id
+    )
+
+    if request.method == "POST":
+        try:
+            grade.delete()
+        except Exception as e:
+            raise Http404("Delete error.", e)
+
+        return redirect("attendance:grade-list")
+
+    context = {"grade": grade}
+    return render(request, "attendance/grade_delete.html", context)
+
+
+@login_required
 def driver_add(request):
     if request.method == "POST":
         try:

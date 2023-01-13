@@ -4,13 +4,15 @@
 
 {% block content %}
 <h1>Driver List</h1>
-{% if driver_list %}
+<p>Driver Add -> <a href="{% url 'attendance:driver-add' %}">+ Add driver</a></p>
+
 <ul>
-  {% for driver in driver_list %}
-    <li><a href="{% url 'attendance:teacher-change' driver.id %}">{{ driver }}</a>: {{ driver.first_name }} {{ driver.last_name }} {{ driver.email }}</li>
-  {% endfor %}
+{% for driver in driver_list %}
+  <li>{{ driver }} | <a href="{% url 'attendance:teacher-change' driver.id %}"> edit </a>
+  | <a href="#"> delete </a></li>
+{% empty %}
+  <li>No driver are available.</li>
+{% endfor %}
 </ul>
-{% else %}
-<p>No driver are available.</p>
-{% endif %}
+
 {% endblock content %}

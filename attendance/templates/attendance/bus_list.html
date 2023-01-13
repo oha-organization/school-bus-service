@@ -4,13 +4,15 @@
 
 {% block content %}
 <h1>Bus List</h1>
-{% if bus_list %}
+<p>Bus Add -> <a href="{% url 'attendance:bus-add' %}">+ Add Bus</a></p>
+
 <ul>
-  {% for bus in bus_list %}
-  <li>{{ bus }} -><a href="{% url 'attendance:bus-detail' bus.id %}">Detail</a></li>
-  {% endfor %}
+{% for bus in bus_list %}
+  <li>{{ bus }} | <a href="{% url 'attendance:bus-detail' bus.id %}">detail</a>
+  | <a href="{% url 'attendance:bus-change' bus.id %}">edit</a> | <a href="#">delete</a></li></li>
+{% empty %}
+  <li>No buses are available.</li>
+{% endfor %}
 </ul>
-{% else %}
-<p>No bus are available.</p>
-{% endif %}
+
 {% endblock content %}
