@@ -87,16 +87,13 @@ def attendance_save(request):
         if attendance.is_signed:
             StudentAttendance.objects.filter(attendance=attendance).delete()
 
-        # Add all student with present and absent value
+        # Create student attendance records
         for student in student_list:
-            if str(student.id) in present_list:
-                StudentAttendance.objects.create(
-                    attendance=attendance, student_id=student.id, present=True
-                )
-            else:
-                StudentAttendance.objects.create(
-                    attendance=attendance, student_id=student.id, present=False
-                )
+            StudentAttendance.objects.create(
+                attendance=attendance,
+                student=student,
+                present=str(student.id) in present_list,
+            )
 
         # Touch Attendance Model for update to signed_at field
         attendance.is_signed = True
@@ -109,6 +106,7 @@ def attendance_save(request):
 
 @login_required
 def attendance_save_done(request):
+    """Render save done template"""
     attendance = get_object_or_404(
         Attendance.objects.filter(school=request.user.school),
         id=request.session.get("attendance_id"),
