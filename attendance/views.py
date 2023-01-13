@@ -18,6 +18,11 @@ from .models import (
 )
 
 
+def user_role_check(user):
+    # Checks user has ADMIN or MANAGER role for doing sensitive process
+    return user.role == "ADMIN" or user.role == "MANAGER"
+
+
 def home(request):
     return render(request, "attendance/home.html")
 
@@ -35,13 +40,8 @@ def attendance_display(request):
         Bus.objects.filter(school=request.user.school), id=request.POST.get("bus")
     )
     check_date = request.POST.get("check_date")
-    if request.POST["direction"] == "COMING":
-        direction = "COMING"
-    else:
-        direction = "LEAVING"
-
+    direction = request.POST.get("direction", "COMING")
     check_date = datetime.datetime.strptime(check_date, "%Y-%m-%d").date()
-    today = datetime.date.today()
 
     # Get or create new attendance
     attendance, created = Attendance.objects.get_or_create(
@@ -152,15 +152,18 @@ def attendance_change(request, attendance_id):
 
 
 @login_required
+@user_passes_test(user_role_check)
 def attendance_delete(request, attendance_id):
     attendance = get_object_or_404(
         Attendance.objects.filter(school=request.user.school), id=attendance_id
     )
 
-    attendance.delete()
+    if request.method == "POST":
+        attendance.delete()
+        return redirect("attendance:attendance-list")
 
-    # return redirect("attendance:attendance-detail", attendance.id)
-    return redirect("attendance:attendance-list")
+    context = {"attendance": attendance}
+    return render(request, "attendance/attendance_delete.html", context)
 
 
 @login_required
@@ -180,11 +183,7 @@ def grade_add(request):
         branch = request.POST["branch"]
 
         grade = Grade(school=school, level=level, branch=branch)
-        try:
-            grade.save()
-        except Exception as e:
-            raise Http404("Error is: ", e)
-
+        grade.save()
         return redirect("attendance:home")
 
     return render(request, "attendance/grade_add.html")
@@ -220,11 +219,7 @@ def grade_delete(request, grade_id):
     )
 
     if request.method == "POST":
-        try:
-            grade.delete()
-        except Exception as e:
-            raise Http404("Delete error.", e)
-
+        grade.delete()
         return redirect("attendance:grade-list")
 
     context = {"grade": grade}
@@ -466,11 +461,6 @@ def destination_add(request):
         return redirect("attendance:home")
 
     return render(request, "attendance/destination_add.html")
-
-
-def user_role_check(user):
-    # check if the user has the correct roles
-    return user.role == "ADMIN" or user.role == "MANAGER"
 
 
 @login_required

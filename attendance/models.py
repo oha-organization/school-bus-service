@@ -4,7 +4,10 @@ from django.conf import settings
 
 class School(models.Model):
     name = models.CharField(max_length=255)
-    code = models.IntegerField()
+    code = models.CharField(max_length=255, unique=True)
+
+    class Meta:
+        ordering = ["name"]
 
     def __str__(self):
         return self.name
@@ -41,6 +44,10 @@ class Bus(models.Model):
 
     class Meta:
         verbose_name_plural = "busses"
+        ordering = ["bus_number"]
+        constraints = [
+            models.UniqueConstraint(fields=["bus_number"], name="unique_bus_number")
+        ]
 
     def __str__(self):
         return self.bus_number
@@ -66,7 +73,7 @@ class Grade(models.Model):
 
 class Student(models.Model):
     school = models.ForeignKey(School, on_delete=models.CASCADE)
-    bus = models.ForeignKey(Bus, on_delete=models.CASCADE, null=True, blank=True)
+    bus = models.ForeignKey(Bus, on_delete=models.SET_NULL, null=True, blank=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     grade = models.ForeignKey(Grade, on_delete=models.CASCADE)
@@ -75,7 +82,7 @@ class Student(models.Model):
         ordering = ["first_name"]
 
     def __str__(self):
-        return f"{self.first_name}  {self.last_name}"
+        return f"{self.first_name} {self.last_name}"
 
 
 class Attendance(models.Model):
@@ -114,11 +121,10 @@ class Attendance(models.Model):
 class StudentAttendance(models.Model):
     attendance = models.ForeignKey(Attendance, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    present = models.BooleanField(default=False, blank=True, null=True)
+    present = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-attendance"]
-
         constraints = [
             models.UniqueConstraint(
                 fields=["attendance", "student"],
@@ -127,4 +133,4 @@ class StudentAttendance(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.attendance.id} | {self.student} | {self.present}"
+        return f"Attendance: {self.attendance.id} | Student: {self.student} | Present: {self.present}"
