@@ -15,9 +15,9 @@
       <label class="form-check-label" for="student{{ forloop.counter }}">{{ studentattendance.student }}</label>
     </div>
   {% empty %}
-    <li>Sorry, no students in this list.</li>
+    <p>Sorry, no students in this list.</p>
   {% endfor %}
-    <input type="submit" value="Save">
+  <input type="submit" value="Save">
 </form>
 
 {% endblock content %}

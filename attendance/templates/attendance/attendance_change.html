@@ -8,17 +8,19 @@
 <h2>Attendance Record List:</h2>
 <p>Attendance: {{ attendance }}</p>
 
-<form method="post" action="{% url 'attendance:attendance-save' %}">{% csrf_token %}
-  Student Name | Present <br>
+<form method="post" action="{% url 'attendance:attendance-save' %}">
+  {% csrf_token %}
+  Status | Full Name <br>
   {% for studentattendance in studentattendance_list %}
-  <label for="student{{ forloop.counter }}"> {{ studentattendance.student }}</label>
-  <input type="checkbox" id="student{{ forloop.counter }}" name="present_list" value="{{ studentattendance.student.id }}" {% if studentattendance.present %}checked{% endif %}>
-  <br>
+    <div class="form-check form-switch">
+      <input class="form-check-input" type="checkbox" role="switch" id="student{{ forloop.counter }}" name="present_list"
+             value="{{ studentattendance.student.id }}" {% if studentattendance.present %} checked{% endif %}>
+      <label class="form-check-label" for="student{{ forloop.counter }}">{{ studentattendance.student }}</label>
+    </div>
   {% empty %}
-  <li>Sorry, no students in this list.</li>
+    <p>Sorry, no students in this list.</p>
   {% endfor %}
   <input type="submit" value="Save">
 </form>
-
 
 {% endblock content %}

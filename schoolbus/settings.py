@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     "accounts.apps.AccountsConfig",
     "attendance.apps.AttendanceConfig",
     "django_extensions",
-
     "crispy_forms",  # new
     "crispy_bootstrap5",  # new
 ]

@@ -110,7 +110,8 @@ def attendance_save(request):
 @login_required
 def attendance_save_done(request):
     attendance = get_object_or_404(
-        Attendance.objects.filter(school=request.user.school), id=request.session.get("attendance_id")
+        Attendance.objects.filter(school=request.user.school),
+        id=request.session.get("attendance_id"),
     )
     del request.session["attendance_id"]
     context = {"attendance": attendance}
@@ -531,7 +532,9 @@ def student_add(request):
 
 
 def student_detail(request, student_id):
-    student = get_object_or_404(Student.objects.filter(school=request.user.school), id=student_id)
+    student = get_object_or_404(
+        Student.objects.filter(school=request.user.school), id=student_id
+    )
     context = {
         "student": student,
     }

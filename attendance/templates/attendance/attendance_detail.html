@@ -6,14 +6,17 @@
 <h1>{{ attendance }}</h1>
 
 <h2>Attendance:</h2>
-<ul>
-  Student Name | Present <br>
+
+  Status | Full Name <br>
   {% for studentattendance in attendance.studentattendance_set.all %}
-  <li>{{ studentattendance.student }} {{ studentattendance.present }}</li>
+    <div class="form-check form-switch">
+      <input class="form-check-input" type="checkbox" role="switch" id="student{{ forloop.counter }}" name="present_list"
+             value="{{ studentattendance.student.id }}" {% if studentattendance.present %} checked{% endif %} disabled>
+      <label class="form-check-label" for="student{{ forloop.counter }}">{{ studentattendance.student }}</label>
+    </div>
   {% empty %}
-  <li>All students are on the bus.</li>
+    <p>Sorry, no students in this list.</p>
   {% endfor %}
-</ul>
 
 <a href="{% url 'attendance:attendance-change' attendance.id %}">Change</a> |
 <a href="{% url 'attendance:attendance-delete' attendance.id %}">DELETE</a>
