@@ -5,6 +5,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import permission_required
 
 from .models import (
     School,
@@ -109,7 +110,7 @@ def attendance_save(request):
 @login_required
 def attendance_save_done(request):
     attendance = get_object_or_404(
-        Attendance.objects.all(), id=request.session.get("attendance_id")
+        Attendance.objects.filter(school=request.user.school), id=request.session.get("attendance_id")
     )
     del request.session["attendance_id"]
     context = {"attendance": attendance}
@@ -198,14 +199,12 @@ def grade_change(request, grade_id):
         level = request.POST["level"]
         branch = request.POST["branch"]
 
-        # If nothing change doesn't touch database
-        if not (grade.level == level and grade.branch == branch):
-            grade.level = level
-            grade.branch = branch
-            try:
-                grade.save()
-            except Exception as e:
-                raise Http404("Update error.")
+        grade.level = level
+        grade.branch = branch
+        try:
+            grade.save()
+        except Exception as e:
+            raise Http404("Update error.")
 
         return redirect("attendance:grade-list")
 
@@ -217,7 +216,7 @@ def grade_change(request, grade_id):
 def driver_add(request):
     if request.method == "POST":
         try:
-            teacher = get_user_model().objects.create_user(
+            get_user_model().objects.create_user(
                 school=request.user.school,
                 role="DRIVER",
                 username=request.POST["username"],
@@ -267,7 +266,7 @@ def teacher_add(request):
         password = request.POST["password"]
 
         try:
-            teacher = get_user_model().objects.create_user(
+            get_user_model().objects.create_user(
                 school=school,
                 role="TEACHER",
                 username=username,
@@ -316,6 +315,7 @@ def teacher_change(request, teacher_id):
 
 @login_required
 def teacher_change_password(request, teacher_id):
+    # There must be admin or teacher themselves check
     teacher = get_object_or_404(
         get_user_model().objects.filter(school=request.user.school), id=teacher_id
     )
@@ -385,7 +385,7 @@ def bus_add(request):
 
 @login_required
 def bus_detail(request, bus_id):
-    bus = get_object_or_404(Bus.objects.all(), id=bus_id)
+    bus = get_object_or_404(Bus.objects.filter(school=request.user.school), id=bus_id)
     context = {"bus": bus}
     return render(request, "attendance/bus_detail.html", context)
 
@@ -467,13 +467,13 @@ def destination_detail(request, destination_id):
 
 
 @login_required
+@user_passes_test(user_role_check)
 def destination_change(request, destination_id):
     destination = get_object_or_404(
         Destination.objects.filter(school=request.user.school), id=destination_id
     )
     if request.method == "POST":
         name = request.POST["name"]
-
         destination.name = name
         try:
             destination.save()
@@ -497,6 +497,7 @@ def student_list_view(request):
 
 
 @login_required
+@user_passes_test(user_role_check)
 def student_add(request):
     if request.method == "POST":
         school = request.user.school
@@ -530,7 +531,7 @@ def student_add(request):
 
 
 def student_detail(request, student_id):
-    student = get_object_or_404(Student.objects.all(), id=student_id)
+    student = get_object_or_404(Student.objects.filter(school=request.user.school), id=student_id)
     context = {
         "student": student,
     }
