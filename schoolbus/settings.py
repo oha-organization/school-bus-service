@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "accounts.apps.AccountsConfig",
     "attendance.apps.AttendanceConfig",
-    'django_extensions',
+    "django_extensions",
+    "crispy_forms",  # new
+    "crispy_bootstrap5",  # new
 ]
 
 MIDDLEWARE = [
@@ -128,3 +130,6 @@ AUTH_USER_MODEL = "accounts.User"
 
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "home"
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"  # new
+CRISPY_TEMPLATE_PACK = "bootstrap5"  # new

@@ -7,14 +7,14 @@
 <h1>Change Grade</h1>
 
 <form action="" method="post">
-    {% csrf_token %}
-    Level:<br>
-    <input name="level" value="{{ grade.level }}">
-    <br><br>
-    Branch:<br>
-    <input name="branch" value="{{ grade.branch }}">
-    <br><br>
-    <input type="submit" value="SAVE">
+  {% csrf_token %}
+  Level:<br>
+  <input name="level" value="{{ grade.level }}">
+  <br><br>
+  Branch:<br>
+  <input name="branch" value="{{ grade.branch }}">
+  <br><br>
+  <input type="submit" value="SAVE">
 </form>
 
 {% endblock content %}

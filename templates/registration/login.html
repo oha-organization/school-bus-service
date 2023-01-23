@@ -1,20 +1,12 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
 
 {% block title %}Log In{% endblock title %}
 
-{% block header %}
-{% endblock %}
-
 {% block content %}
-{% if user.is_authenticated %}
-  Hi {{ user.username }}! You are at {{ user.role }} role. -> <a href="{% url 'logout' %}">Log Out</a>
-<p></p>
-{% else %}
 <h2>Log In</h2>
 <form method="post">{% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Log In</button>
+  {{ form|crispy }}
+  <button class="btn btn-success ml-2" type="submit">Log In</button>
 </form>
-{% endif %}
-
 {% endblock content %}

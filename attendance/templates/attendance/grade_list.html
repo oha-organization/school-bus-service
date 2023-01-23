@@ -3,13 +3,16 @@
 {% block title %}Grade List{% endblock title %}
 
 {% block content %}
-{% if grade_list %}
-    <ul>
-    {% for grade in grade_list %}
-        <li><a href="{% url 'attendance:grade-change' grade.id %}">{{ grade.level }}/{{ grade.branch }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No grades are available.</p>
-{% endif %}
+<h1>Grade List</h1>
+<p>Grade Add -> <a href="{% url 'attendance:grade-add' %}">+ Add Grade</a></p>
+
+<ul>
+{% for grade in grade_list %}
+  <li>{{ grade.level }}/{{ grade.branch }} | <a href="{% url 'attendance:grade-change' grade.id %}"> edit </a> |
+    <a href="{% url 'attendance:grade-delete' grade.id %}"> delete </a></li>
+{% empty %}
+  <li>No grades are available.</li>
+{% endfor %}
+</ul>
+
 {% endblock content %}

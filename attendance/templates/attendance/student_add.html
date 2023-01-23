@@ -7,14 +7,28 @@
 <h1>Add Student</h1>
 
 <form action="" method="post">
-    {% csrf_token %}
-    Level:<br>
-    <input name="level">
-    <br><br>
-    Branch:<br>
-    <input name="branch">
-    <br><br>
-    <input type="submit" value="SAVE">
+  {% csrf_token %}
+  First name:<br>
+  <input name="first_name" required>
+  <br><br>
+  Last name:<br>
+  <input name="last_name" required>
+  <br><br>
+  Grade:
+  <select name="grade" id="grade" required>
+    <option value selected>-----</option>
+    {% for grade in grade_list %}
+    <option value="{{ grade.id }}">{{ grade }}</option>
+    {% endfor %}
+  </select><br>
+  Bus:
+  <select name="bus" id="bus">
+    <option value="" selected>-----</option>
+    {% for bus in bus_list %}
+    <option value="{{ bus.id }}">{{ bus }}</option>
+    {% endfor %}
+  </select><br>
+  <input type="submit" value="SAVE">
 </form>
 
 {% endblock content %}

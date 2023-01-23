@@ -7,23 +7,23 @@
 <h1>Teacher Add</h1>
 
 <form action="" method="post">
-    {% csrf_token %}
-    Username:<br>
-    <input name="username" required>
-    <br><br>
-    First name:<br>
-    <input name="first_name" required>
-    <br><br>
-    Last name:<br>
-    <input name="last_name" required>
-    <br><br>
-    Email:<br>
-    <input type="email" name="email">
-    <br><br>
-    Password:<br>
-    <input type="password" name="password" required>
-    <br><br>
-    <input type="submit" value="SAVE">
+  {% csrf_token %}
+  Username:<br>
+  <input name="username" required>
+  <br><br>
+  First name:<br>
+  <input name="first_name" required>
+  <br><br>
+  Last name:<br>
+  <input name="last_name" required>
+  <br><br>
+  Email:<br>
+  <input type="email" name="email">
+  <br><br>
+  Password:<br>
+  <input type="password" name="password" required>
+  <br><br>
+  <input type="submit" value="SAVE">
 </form>
 
 {% endblock content %}

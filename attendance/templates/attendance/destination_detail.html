@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Destination Detail{% endblock title %}
+
+{% block content %}
+<h2>Destination {{ destination }} Detail:</h2>
+School: {{ destination.name }}<br>
+
+<a href="{% url 'attendance:destination-change' destination.id %}">Change</a>
+<br>
+<a href="{% url 'attendance:destination-list' %}">Destination List</a>
+
+{% endblock content %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Destination List{% endblock title %}
+
+{% block content %}
+<h1>Destination List</h1>
+<p>Destination Add -> <a href="{% url 'attendance:destination-add' %}">+ Add destination</a></p>
+
+<ul>
+{% for destination in destination_list %}
+    <li>{{ destination.name }} | <a href="{% url 'attendance:destination-change' destination.id %}">edit</a>
+     | <a href="{% url 'attendance:destination-detail' destination.id %}">delete</a></li>
+{% empty %}
+    <li>Sorry, no destination in this list.</li>
+{% endfor %}
+</ul>
+{% endblock content %}

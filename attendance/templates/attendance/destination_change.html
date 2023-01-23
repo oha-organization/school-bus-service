@@ -1,18 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}Add Grade{% endblock title %}
+{% block title %}Destination Change{% endblock title %}
 
 {% block content %}
 
-<h1>Add Grade</h1>
+<h1>Destination Grade</h1>
 
 <form action="" method="post">
   {% csrf_token %}
-  Level:<br>
-  <input name="level">
-  <br><br>
-  Branch:<br>
-  <input name="branch">
+  Name:<br>
+  <input name="name" value="{{ destination.name }}">
   <br><br>
   <input type="submit" value="SAVE">
 </form>

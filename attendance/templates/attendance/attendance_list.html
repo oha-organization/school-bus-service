@@ -1,15 +1,19 @@
 {% extends "base.html" %}
 
-{% block title %}Signature List{% endblock title %}
+{% block title %}Attendance List{% endblock title %}
 
 {% block content %}
-{% if attendance_list %}
-    <ol>
-    {% for attendance in attendance_list %}
-        <li><a href="{% url 'attendance:attendance-detail' attendance.id %}">{{ attendance }}</a></li>
-    {% endfor %}
-    </ol>
-{% else %}
-    <p>No attendance are available.</p>
-{% endif %}
+<h1>Attendance List</h1>
+<p>Attendance add -> <a href="{% url 'attendance:attendance-select' %}">+ Add Attendance</a></p>
+
+<ul>
+{% for attendance in attendance_list %}
+  <li>{{ attendance }} | <a href="{% url 'attendance:attendance-detail' attendance.id %}"> detail </a>
+   | <a href="{% url 'attendance:attendance-change' attendance.id %}"> edit </a>
+   | <a href="{% url 'attendance:attendance-delete' attendance.id %}"> delete </a></li>
+{% empty %}
+  <li>No attendances are available.</li>
+{% endfor %}
+</ul>
+
 {% endblock content %}

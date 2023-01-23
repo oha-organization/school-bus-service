@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Student Change{% endblock title %}
+
+{% block content %}
+
+<h1>Student Change</h1>
+
+<form action="" method="post">
+  {% csrf_token %}
+  First name:<br>
+  <input name="first_name" value="{{ student.first_name }}">
+  <br><br>
+  Last name:<br>
+  <input name="last_name" value="{{ student.last_name }}">
+  <br><br>
+  Grade:
+  <select name="grade" id="grade" required>
+    <option value selected>-----</option>
+    {% for grade in grade_list %}
+    <option value="{{ grade.id }}" {% if grade.id == student.grade_id %} selected{% endif %}>{{ grade }}</option>
+    {% endfor %}
+  </select><br>
+  Bus:
+  <select name="bus" id="bus" required>
+    <option value selected>-----</option>
+    {% for bus in bus_list %}
+    <option value="{{ bus.id }}" {% if bus.id == student.bus_id %} selected{% endif %}>{{ bus }}</option>
+    {% endfor %}
+  </select><br>
+  <input type="submit" value="SAVE">
+</form>
+
+{% endblock content %}

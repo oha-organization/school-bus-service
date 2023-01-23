@@ -2,165 +2,130 @@ import datetime
 
 from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import permission_required
 
-from .models import School, Bus, Student, AbsentStudent, Attendance, Grade, BusMember
+from .models import (
+    School,
+    Bus,
+    Student,
+    StudentAttendance,
+    Attendance,
+    Grade,
+    Destination,
+)
+
+
+def user_role_check(user):
+    # Checks user has ADMIN or MANAGER role for doing sensitive process
+    return user.role == "ADMIN" or user.role == "MANAGER"
 
 
 def home(request):
     return render(request, "attendance/home.html")
 
 
+@login_required
 def attendance_select(request):
     bus_list = Bus.objects.filter(school=request.user.school)
     context = {"bus_list": bus_list, "today": datetime.date.today()}
     return render(request, "attendance/attendance_select.html", context)
 
 
+@login_required
 def attendance_display(request):
-    def get_or_create():
-        # Get or create new attendance
-        attendance, created = Attendance.objects.get_or_create(
-            school=request.user.school,
-            bus=bus,
-            direction=direction,
-            check_date=check_date,
-            defaults={"teacher": request.user},
-        )
-        return attendance, created
-
-    bus = get_object_or_404(Bus.objects.all(), id=request.POST.get("bus"))
+    bus = get_object_or_404(
+        Bus.objects.filter(school=request.user.school), id=request.POST.get("bus")
+    )
     check_date = request.POST.get("check_date")
-    if request.POST["direction"] in ["COMING", "LEAVING"]:
-        direction = request.POST["direction"]
-    else:
-        raise ValueError("Don't tamper post direction data!")
-
+    direction = request.POST.get("direction", "COMING")
     check_date = datetime.datetime.strptime(check_date, "%Y-%m-%d").date()
-    today = datetime.date.today()
 
-    if check_date == today:
-        attendance, created = get_or_create()
-        # If attendance is already exist get unattended student list
-        student_already_absent_list = []
-        if not created:
-            student_already_absent_list = Student.objects.filter(
-                absentstudent__attendance=attendance
-            )
-            student_list = Student.objects.filter(
-                school=request.user.school,
-                busmember__bus=bus,
-                busmember__version=attendance.version,
-            )
-        else:
-            student_list = Student.objects.filter(
-                school=request.user.school,
-                busmember__bus=bus,
-                busmember__is_active=True,
-            )
-            version = BusMember.objects.filter(
-                school=request.user.school, bus=bus, is_active=True
-            )
-
-            attendance.version = version[0].version
-            attendance.save()
-    elif check_date < today:
-        attendance, created = get_or_create()
-
-        is_busmember_exist_on_seleceted_date = BusMember.objects.filter(
-            start_date__lte=check_date, finish_date__gte=check_date
-        ).order_by("-version")
-        if is_busmember_exist_on_seleceted_date:
-            attendance, created = get_or_create()
-            version = is_busmember_exist_on_seleceted_date[0].version
-            if not created:
-                student_already_absent_list = Student.objects.filter(
-                    absentstudent__attendance=attendance
-                )
-            else:
-                attendance.version = version
-                attendance.save()
-
-            student_list = Student.objects.filter(
-                school=request.user.school,
-                busmember__bus=bus,
-                busmember__version=version,
-            )
-        else:
-            print(
-                "There is no Bus Member list for selected date. Please contact your system administrator."
-            )
-    elif check_date > today:
-        print("Check date future nobody can change")
-        return redirect("home")
-    else:
-        print("Invalid date")
-        return redirect("home")
+    # Get or create new attendance
+    attendance, created = Attendance.objects.get_or_create(
+        school=request.user.school,
+        bus=bus,
+        direction=direction,
+        check_date=check_date,
+        defaults={"teacher": request.user},
+    )
 
     request.session["attendance_id"] = attendance.id
-    request.session["attendance_version"] = attendance.version
     request.session["bus_id"] = bus.id
 
     context = {
-        "student_list": student_list,
-        "student_already_absent_list": student_already_absent_list,
         "attendance": attendance,
     }
-    return render(request, "attendance/attendance_display.html", context)
+
+    if attendance.is_signed:
+        studentattendance_list = StudentAttendance.objects.filter(attendance=attendance)
+        context["studentattendance_list"] = studentattendance_list
+        return render(request, "attendance/attendance_display_exist.html", context)
+    else:
+        student_list = Student.objects.filter(school=request.user.school, bus=bus)
+        context["student_list"] = student_list
+        return render(request, "attendance/attendance_display_new.html", context)
 
 
+@login_required
 def attendance_save(request):
     """Save attendance logic"""
     if request.method == "POST":
-        # For security reason check absent_students are in bus student_list
         student_list = Student.objects.filter(
-            busmember__bus=request.session["bus_id"],
-            busmember__version=request.session["attendance_version"],
+            school=request.user.school, bus=request.session["bus_id"]
         )
-        student_list = [str(student.id) for student in student_list]
-        student_absent_list = request.POST.getlist("student_absent_list")
-
-        check_all_absent_student_in_student_list = all(
-            item in student_list for item in student_absent_list
-        )
-        if not check_all_absent_student_in_student_list:
-            raise Http404("TAMPERED STUDENT DATA...")
+        present_list = request.POST.getlist("present_list")
 
         # Delete all attendance for attendance
-        attendance = Attendance.objects.get(id=request.session["attendance_id"])
-        AbsentStudent.objects.filter(attendance=attendance).delete()
+        attendance = get_object_or_404(
+            Attendance.objects.filter(school=request.user.school),
+            id=request.session.get("attendance_id"),
+        )
+        # Delete StudentAttendance list if already signed
+        if attendance.is_signed:
+            StudentAttendance.objects.filter(attendance=attendance).delete()
 
-        # Add absent students to Attendance
-        for student in student_absent_list:
-            AbsentStudent.objects.create(attendance=attendance, student_id=student)
+        # Create student attendance records
+        for student in student_list:
+            StudentAttendance.objects.create(
+                attendance=attendance,
+                student=student,
+                present=str(student.id) in present_list,
+            )
 
         # Touch Attendance Model for update to signed_at field
         attendance.is_signed = True
         attendance.teacher = request.user
-        attendance.num_absent_student = len(student_absent_list)
-        attendance.num_total_student = len(student_list)
         attendance.save()
 
         # return redirect("attendance:attendance-detail", attendance.id)
         return redirect("attendance:attendance-save-done")
 
 
+@login_required
 def attendance_save_done(request):
+    """Render save done template"""
     attendance = get_object_or_404(
-        Attendance.objects.all(), id=request.session.get("attendance_id")
+        Attendance.objects.filter(school=request.user.school),
+        id=request.session.get("attendance_id"),
     )
     del request.session["attendance_id"]
     context = {"attendance": attendance}
     return render(request, "attendance/attendance_save_done.html", context)
 
 
+@login_required
 def attendance_detail(request, attendance_id):
-    attendance = get_object_or_404(Attendance.objects.all(), id=attendance_id)
+    attendance = get_object_or_404(
+        Attendance.objects.filter(school=request.user.school), id=attendance_id
+    )
     context = {"attendance": attendance}
     return render(request, "attendance/attendance_detail.html", context)
 
 
+@login_required
 def attendance_list_view(request):
     attendance_list = Attendance.objects.filter(school=request.user.school)
     context = {
@@ -169,6 +134,37 @@ def attendance_list_view(request):
     return render(request, "attendance/attendance_list.html", context)
 
 
+@login_required
+def attendance_change(request, attendance_id):
+    attendance = get_object_or_404(
+        Attendance.objects.filter(school=request.user.school), id=attendance_id
+    )
+    studentattendance_list = StudentAttendance.objects.filter(attendance=attendance)
+
+    request.session["attendance_id"] = attendance.id
+    context = {
+        "studentattendance_list": studentattendance_list,
+        "attendance": attendance,
+    }
+    return render(request, "attendance/attendance_change.html", context)
+
+
+@login_required
+@user_passes_test(user_role_check)
+def attendance_delete(request, attendance_id):
+    attendance = get_object_or_404(
+        Attendance.objects.filter(school=request.user.school), id=attendance_id
+    )
+
+    if request.method == "POST":
+        attendance.delete()
+        return redirect("attendance:attendance-list")
+
+    context = {"attendance": attendance}
+    return render(request, "attendance/attendance_delete.html", context)
+
+
+@login_required
 def grade_list_view(request):
     grade_list = Grade.objects.filter(school=request.user.school)
     context = {
@@ -177,6 +173,7 @@ def grade_list_view(request):
     return render(request, "attendance/grade_list.html", context)
 
 
+@login_required
 def grade_add(request):
     if request.method == "POST":
         school = request.user.school
@@ -184,16 +181,13 @@ def grade_add(request):
         branch = request.POST["branch"]
 
         grade = Grade(school=school, level=level, branch=branch)
-        try:
-            grade.save()
-        except Exception as e:
-            raise Http404("Error is: ", e)
-
+        grade.save()
         return redirect("attendance:home")
 
     return render(request, "attendance/grade_add.html")
 
 
+@login_required
 def grade_change(request, grade_id):
     grade = get_object_or_404(
         Grade.objects.filter(school=request.user.school), id=grade_id
@@ -203,14 +197,12 @@ def grade_change(request, grade_id):
         level = request.POST["level"]
         branch = request.POST["branch"]
 
-        # If nothing change doesn't touch database
-        if not (grade.level == level and grade.branch == branch):
-            grade.level = level
-            grade.branch = branch
-            try:
-                grade.save()
-            except Exception as e:
-                raise Http404("Update error.")
+        grade.level = level
+        grade.branch = branch
+        try:
+            grade.save()
+        except Exception as e:
+            raise Http404("Update error.")
 
         return redirect("attendance:grade-list")
 
@@ -218,10 +210,25 @@ def grade_change(request, grade_id):
     return render(request, "attendance/grade_change.html", context)
 
 
+@login_required
+def grade_delete(request, grade_id):
+    grade = get_object_or_404(
+        Grade.objects.filter(school=request.user.school), id=grade_id
+    )
+
+    if request.method == "POST":
+        grade.delete()
+        return redirect("attendance:grade-list")
+
+    context = {"grade": grade}
+    return render(request, "attendance/grade_delete.html", context)
+
+
+@login_required
 def driver_add(request):
     if request.method == "POST":
         try:
-            teacher = get_user_model().objects.create_user(
+            get_user_model().objects.create_user(
                 school=request.user.school,
                 role="DRIVER",
                 username=request.POST["username"],
@@ -238,6 +245,7 @@ def driver_add(request):
     return render(request, "attendance/driver_add.html")
 
 
+@login_required
 def driver_list_view(request):
     driver_list = get_user_model().objects.filter(
         school=request.user.school, role="DRIVER"
@@ -248,6 +256,7 @@ def driver_list_view(request):
     return render(request, "attendance/driver_list.html", context)
 
 
+@login_required
 def teacher_list_view(request):
     teacher_list = get_user_model().objects.filter(
         school=request.user.school, role="TEACHER"
@@ -258,6 +267,7 @@ def teacher_list_view(request):
     return render(request, "attendance/teacher_list.html", context)
 
 
+@login_required
 def teacher_add(request):
     if request.method == "POST":
         school = request.user.school
@@ -268,7 +278,7 @@ def teacher_add(request):
         password = request.POST["password"]
 
         try:
-            teacher = get_user_model().objects.create_user(
+            get_user_model().objects.create_user(
                 school=school,
                 role="TEACHER",
                 username=username,
@@ -285,6 +295,7 @@ def teacher_add(request):
     return render(request, "attendance/teacher_add.html")
 
 
+@login_required
 def teacher_change(request, teacher_id):
     teacher = get_object_or_404(
         get_user_model().objects.filter(school=request.user.school), id=teacher_id
@@ -314,7 +325,9 @@ def teacher_change(request, teacher_id):
     return render(request, "attendance/teacher_change.html", context)
 
 
+@login_required
 def teacher_change_password(request, teacher_id):
+    # There must be admin or teacher themselves check
     teacher = get_object_or_404(
         get_user_model().objects.filter(school=request.user.school), id=teacher_id
     )
@@ -340,147 +353,7 @@ def teacher_change_password(request, teacher_id):
     return render(request, "attendance/teacher_change_password.html", context)
 
 
-def busmember_list_view(request, bus_id):
-    busmember_list = BusMember.objects.filter(
-        school=request.user.school, bus=bus_id, is_active=True
-    )
-    grade_list = Grade.objects.filter(school=request.user.school)
-    context = {
-        "busmember_list": busmember_list,
-        "grade_list": grade_list,
-        "bus_id": bus_id,
-    }
-    return render(request, "attendance/busmember_list.html", context)
-
-
-def busmember_version_list_view(request, bus_id):
-    busmember_list = (
-        BusMember.objects.filter(school=request.user.school, bus=bus_id)
-        .values("school", "bus", "version", "is_active", "start_date")
-        .distinct()
-    )
-
-    context = {
-        "busmember_list": busmember_list,
-        "bus_id": bus_id,
-    }
-    return render(request, "attendance/busmember_version_list.html", context)
-
-
-def busmember_change(request, bus_id):
-    # Get active busmember_list for by bus_id
-    busmember_list = BusMember.objects.filter(
-        school=request.user.school, bus=bus_id, is_active=True
-    )
-
-    if request.method == "POST":
-        # Get list of multiple checkbox values
-        student_list = request.POST.getlist("student_list")
-
-        # If there is already busmember
-        if busmember_list and (len(busmember_list) != len(student_list)):
-            active_version_number = busmember_list[0].version
-            print(f"{active_version_number=}")
-
-            for student in student_list:
-                BusMember.objects.create(
-                    school=request.user.school,
-                    bus_id=bus_id,
-                    student_id=student,
-                    version=active_version_number + 1,
-                    is_active=True,
-                )
-
-            # Change is_active status to False for old busmember.
-            for busmember in busmember_list:
-                busmember.is_active = False
-                busmember.save()
-
-        return redirect("attendance:busmember-change", bus_id=bus_id)
-
-    context = {
-        "busmember_list": busmember_list,
-    }
-    return render(request, "attendance/busmember_change.html", context)
-
-
-def busmember_add(request, bus_id, grade_id):
-    busmember_list = BusMember.objects.filter(
-        school=request.user.school, bus=bus_id, is_active=True
-    )
-    student_list = Student.objects.filter(school=request.user.school, grade=grade_id)
-
-    student_at_busmember_list = Student.objects.filter(
-        school=request.user.school,
-        busmember__bus=bus_id,
-        busmember__student__grade=grade_id,
-        busmember__is_active=True,
-    )
-
-    if request.method == "POST":
-        # Get list of student who are already at member of bus.
-        student_member_list = request.POST.getlist("student_member_list")
-
-        # If there is already busmember
-        if busmember_list:
-            active_version_number = busmember_list[0].version
-
-            # Select all other grade easy way
-            busmember_list_exclude_grade = busmember_list.exclude(
-                student__grade=grade_id
-            )
-            # Add all other grade to busmember with new id
-            for busmember in busmember_list_exclude_grade:
-                busmember.pk = None
-                busmember._state.adding = True
-                busmember.version = active_version_number + 1
-                busmember.save()  # busmember.pk automatic increase 1
-                print(f"{busmember.pk=}")
-        else:
-            active_version_number = 0
-
-        # Add selected grade students to busmember
-        for student in student_member_list:
-            BusMember.objects.create(
-                school=request.user.school,
-                bus_id=bus_id,
-                student_id=student,
-                version=active_version_number + 1,
-                is_active=True,
-            )
-
-        # Change is_active status to False for old busmember.
-        for busmember in busmember_list:
-            busmember.is_active = False
-            busmember.finish_date = datetime.date.today()
-            busmember.save()
-
-        return redirect("attendance:busmember-list", bus_id=bus_id)
-
-    context = {
-        "student_list": student_list,
-        "student_at_busmember_list": student_at_busmember_list,
-    }
-    return render(request, "attendance/busmember_add.html", context)
-
-
-def student_add(request):
-    if request.method == "POST":
-        school = request.user.school
-        level = request.POST["level"]
-        branch = request.POST["branch"]
-
-        grade = Grade(school=school, level=level, branch=branch)
-        try:
-            grade.save()
-        except Exception as e:
-            raise Http404("Error is: ", e)
-
-        return redirect("attendance:home")
-
-    return render(request, "attendance/grade_add.html")
-
-
+@login_required
 def bus_list_view(request):
     bus_list = Bus.objects.filter(school=request.user.school)
     context = {
@@ -489,25 +362,219 @@ def bus_list_view(request):
     return render(request, "attendance/bus_list.html", context)
 
 
-def attendance_change(request, attendance_id):
-    attendance = get_object_or_404(
-        Attendance.objects.filter(school=request.user.school), id=attendance_id
+def bus_add(request):
+    driver_list = get_user_model().objects.filter(
+        school=request.user.school, role="DRIVER"
     )
-    student_list = Student.objects.filter(
-        school=request.user.school,
-        busmember__bus=attendance.bus,
-        busmember__version=attendance.version,
+    destination_list = Destination.objects.filter(school=request.user.school)
+
+    if request.method == "POST":
+        school = request.user.school
+        driver = request.POST["driver"]
+        bus_number = request.POST["bus_number"]
+        capacity = request.POST["capacity"]
+        plate = request.POST["plate"]
+        destinations = request.POST.getlist("destinations")
+
+        bus = Bus(
+            school=school,
+            driver_id=driver,
+            bus_number=bus_number,
+            capacity=capacity,
+            plate=plate,
+        )
+        try:
+            bus.save()
+            bus.destinations.set(destinations)
+        except Exception as e:
+            raise Http404("Error is: ", e)
+
+        return redirect("attendance:bus-detail", bus.id)
+
+    context = {"driver_list": driver_list, "destination_list": destination_list}
+    return render(request, "attendance/bus_add.html", context)
+
+
+@login_required
+def bus_detail(request, bus_id):
+    bus = get_object_or_404(Bus.objects.filter(school=request.user.school), id=bus_id)
+    context = {"bus": bus}
+    return render(request, "attendance/bus_detail.html", context)
+
+
+@login_required
+def bus_change(request, bus_id):
+    bus = get_object_or_404(Bus.objects.filter(school=request.user.school), id=bus_id)
+    driver_list = get_user_model().objects.filter(
+        school=request.user.school, role="DRIVER"
     )
-    student_already_absent_list = Student.objects.filter(
-        school=request.user.school,
-        busmember__bus=attendance.bus,
-        busmember__version=attendance.version,
-        absentstudent__attendance=attendance,
+    destination_list = Destination.objects.filter(school=request.user.school)
+
+    if request.method == "POST":
+        driver = request.POST["driver"]
+        bus_number = request.POST["bus_number"]
+        capacity = request.POST["capacity"]
+        plate = request.POST["plate"]
+        destinations = request.POST.getlist("destinations")
+
+        bus.driver_id = driver
+        bus.bus_number = bus_number
+        bus.capacity = capacity
+        bus.plate = plate
+        bus.destinations.set(destinations)
+        try:
+            bus.save()
+        except Exception as e:
+            raise Http404("Update error.")
+
+        return redirect("attendance:bus-list")
+
+    context = {
+        "bus": bus,
+        "driver_list": driver_list,
+        "destination_list": destination_list,
+    }
+    return render(request, "attendance/bus_change.html", context)
+
+
+def destination_list_view(request):
+    destination_list = Destination.objects.filter(school=request.user.school)
+    context = {
+        "destination_list": destination_list,
+    }
+    return render(request, "attendance/destination_list.html", context)
+
+
+def destination_add(request):
+    if request.method == "POST":
+        school = request.user.school
+        name = request.POST["name"]
+
+        destination = Destination(school=school, name=name)
+        try:
+            destination.save()
+        except Exception as e:
+            raise Http404("Error is: ", e)
+
+        return redirect("attendance:home")
+
+    return render(request, "attendance/destination_add.html")
+
+
+@login_required
+@user_passes_test(user_role_check)
+def destination_detail(request, destination_id):
+    destination = get_object_or_404(
+        Destination.objects.filter(school=request.user.school), id=destination_id
     )
-    request.session["attendance_id"] = attendance.id
+    context = {
+        "destination": destination,
+    }
+    return render(request, "attendance/destination_detail.html", context)
+
+
+@login_required
+@user_passes_test(user_role_check)
+def destination_change(request, destination_id):
+    destination = get_object_or_404(
+        Destination.objects.filter(school=request.user.school), id=destination_id
+    )
+    if request.method == "POST":
+        name = request.POST["name"]
+        destination.name = name
+        try:
+            destination.save()
+        except Exception as e:
+            raise Http404("Update error.")
+
+        return redirect("attendance:destination-list")
+
+    context = {
+        "destination": destination,
+    }
+    return render(request, "attendance/destination_change.html", context)
+
+
+def student_list_view(request):
+    student_list = Student.objects.filter(school=request.user.school)
     context = {
         "student_list": student_list,
-        "student_already_absent_list": student_already_absent_list,
-        "attendance": attendance,
     }
-    return render(request, "attendance/attendance_change.html", context)
+    return render(request, "attendance/student_list.html", context)
+
+
+@login_required
+@user_passes_test(user_role_check)
+def student_add(request):
+    if request.method == "POST":
+        school = request.user.school
+        bus = request.POST["bus"]
+        first_name = request.POST["first_name"]
+        last_name = request.POST["last_name"]
+        grade = request.POST["grade"]
+
+        student = Student(
+            school=school,
+            bus_id=bus,
+            first_name=first_name,
+            last_name=last_name,
+            grade_id=grade,
+        )
+        try:
+            student.save()
+        except Exception as e:
+            raise Http404("Error is: ", e)
+
+        return redirect("attendance:home")
+
+    bus_list = Bus.objects.filter(school=request.user.school)
+    grade_list = Grade.objects.filter(school=request.user.school)
+
+    context = {
+        "bus_list": bus_list,
+        "grade_list": grade_list,
+    }
+    return render(request, "attendance/student_add.html", context)
+
+
+def student_detail(request, student_id):
+    student = get_object_or_404(
+        Student.objects.filter(school=request.user.school), id=student_id
+    )
+    context = {
+        "student": student,
+    }
+    return render(request, "attendance/student_detail.html", context)
+
+
+def student_change(request, student_id):
+    student = get_object_or_404(
+        Student.objects.filter(school=request.user.school), id=student_id
+    )
+
+    if request.method == "POST":
+        bus = request.POST["bus"]
+        first_name = request.POST["first_name"]
+        last_name = request.POST["last_name"]
+        grade = request.POST["grade"]
+
+        student.bus_id = bus
+        student.first_name = first_name
+        student.last_name = last_name
+        student.grade_id = grade
+        try:
+            student.save()
+        except Exception as e:
+            raise Http404("Update Error.", e)
+
+        return redirect("attendance:student-detail", student.id)
+
+    bus_list = Bus.objects.filter(school=request.user.school)
+    grade_list = Grade.objects.filter(school=request.user.school)
+
+    context = {
+        "student": student,
+        "bus_list": bus_list,
+        "grade_list": grade_list,
+    }
+    return render(request, "attendance/student_change.html", context)

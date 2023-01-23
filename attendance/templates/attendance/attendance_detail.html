@@ -3,20 +3,23 @@
 {% block title %}Attendance Detail{% endblock title %}
 
 {% block content %}
-<h1>Bus: {{ attendance.bus }}, {{ attendance.check_date }} - {{ attendance.direction }}</h1>
-Total students number: {{ attendance.num_total_student }}<br>
-Absents students number: {{ attendance.num_absent_student }}
+<h1>{{ attendance }}</h1>
 
-<h2>Unattended List:</h2>
-<ul>
-    {% for attendance in attendance.absentstudent_set.all %}
-        <li>{{ attendance.student }}</li>
-    {% empty %}
-        <li>All students are on the bus.</li>
-    {% endfor %}
-</ul>
+<h2>Attendance:</h2>
 
-<a href="{% url 'attendance:attendance-change' attendance.id %}">Change</a>
+  Status | Full Name <br>
+  {% for studentattendance in attendance.studentattendance_set.all %}
+    <div class="form-check form-switch">
+      <input class="form-check-input" type="checkbox" role="switch" id="student{{ forloop.counter }}" name="present_list"
+             value="{{ studentattendance.student.id }}" {% if studentattendance.present %} checked{% endif %} disabled>
+      <label class="form-check-label" for="student{{ forloop.counter }}">{{ studentattendance.student }}</label>
+    </div>
+  {% empty %}
+    <p>Sorry, no students in this list.</p>
+  {% endfor %}
+
+<a href="{% url 'attendance:attendance-change' attendance.id %}">Change</a> |
+<a href="{% url 'attendance:attendance-delete' attendance.id %}">DELETE</a>
 <br>
 <a href="{% url 'attendance:attendance-select' %}">Get new attendance</a>
 

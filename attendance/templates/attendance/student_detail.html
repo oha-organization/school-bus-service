@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Student Detail{% endblock title %}
+
+{% block content %}
+<h2>Student {{ student }} Detail:</h2>
+School: {{ student.school }}<br>
+First name: {{ student.first_name }}<br>
+Last name: {{ student.last_name }}<br>
+Grade: {{ student.grade }}<br>
+Bus_number: {{ student.bus }}<br>
+
+<br>
+
+<a href="{% url 'attendance:student-change' student.id %}">Change</a>
+<br>
+<a href="{% url 'attendance:student-list' %}">Student List</a>
+
+{% endblock content %}
