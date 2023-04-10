@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractUser
 from attendance.models import School
 
 
-class User(AbstractUser):
+class CustomUser(AbstractUser):
     ADMIN = "ADMIN"
     MANAGER = "MANAGER"
     TEACHER = "TEACHER"

@@ -1,51 +1,78 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}School Bus Attendance App{% endblock title %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-  </head>
-  <body>
-  <div class="container">
-    <header class="p-3 mb-3 border-bottom">
-      <div class="container">
-        <div class="d-flex flex-wrap align-items-center justify-content-center
-          justify-content-lg-start">
-          <a class="navbar-brand" href="{% url 'home' %}">OHA SchoolBus</a>
-          <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center
-            mb-md-0">
-          {% if user.is_authenticated %}
-            <li><a href="{% url 'attendance:home' %}" class="nav-link px-2 link-dark">+ Go Attendance</a></li>
-          </ul>
-          <div class="dropdown text-end">
-            <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle"
-              id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-              {{ user.username }}
-            </a>
-            <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
-              <li><a class="dropdown-item" href="{% url 'password_change'%}">
-                Change password</a></li>
-              <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
-            </ul>
-          </div>
-          {% else %}
-          </ul>
-          <div class="text-end">
-            <a href="{% url 'login' %}" class="btn btn-outline-primary me-2">Log In</a>
-            <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a>
-          </div>
-          {% endif %}
-        </div>
-      </div>
-    </header>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}School Bus Attendance App{% endblock title %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+</head>
+<body>
+<header class="p-5 bg-primary text-white text-center">
+  <h1>School Bus Service Attendance</h1>
+  <p>Use this app free!</p>
+</header>
 
-    <main>
-      {% block content %}
-      {% endblock content %}
-    </main>
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{% url 'home' %}">OHA</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link active" href="{% url 'attendance:attendance-list' %}">Attendances</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'attendance:grade-list' %}">Grades</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'attendance:teacher-list' %}">Teachers</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'attendance:driver-list' %}">Drivers</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'attendance:bus-list' %}">Busses</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'attendance:destination-list' %}">Destinations</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'attendance:student-list' %}">Students</a>
+        </li>
+      </ul>
+      <ul class="navbar-nav ms-auto">
+        {% if user.is_authenticated %}
+        <li class="nav-item">
+          <a class="nav-link disabled" href="#">{{ user }}</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+        </li>
+        {% else %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'login' %}">Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'signup' %}">Signup</a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
   </div>
+</nav>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
-  </body>
+<div class="container">
+  <main>
+    {% block content %}
+    {% endblock content %}
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+        crossorigin="anonymous"></script>
+</body>
 </html>

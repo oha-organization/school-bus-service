@@ -3,12 +3,8 @@
 {% block title %}Home{% endblock title %}
 
 {% block content %}
-{% if user.is_authenticated %}
-  Hi {{ user.username }}! You have {{ user.role }} role.
-  <p><a href="{% url 'logout' %}">Log Out</a></p>
-{% else %}
-  <p>You are not logged in</p>
-  <a href="{% url 'login' %}">Log In</a> |
-  <a href="{% url 'signup' %}">Sign Up</a>
-{% endif %}
+  <div class="mt-4 p-5 bg-primary text-white rounded text-center">
+    <h1>To start press button</h1>
+    <a href="{% url 'attendance:home' %}" class="btn btn-success">Go to Attendance</a>
+  </div>
 {% endblock content %}
