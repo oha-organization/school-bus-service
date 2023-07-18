@@ -8,6 +8,8 @@ Any school that wants to track student attendance for school bus services.
 
 ## Getting Started
 
+![UML DIAGRAM2](attendance.jpg)
+
 ### Dependencies
 
 * The program runs on Django Web Framework so any web server which run Django is enough.
