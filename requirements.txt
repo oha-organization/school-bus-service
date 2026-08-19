@@ -2,7 +2,7 @@ asgiref
 black
 click
 crispy-bootstrap5
-Django==4.2.2
+Django
 django-crispy-forms
 django-extensions
 mypy-extensions
